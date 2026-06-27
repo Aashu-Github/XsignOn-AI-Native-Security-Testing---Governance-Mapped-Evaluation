@@ -1,0 +1,81 @@
+We are testing the sample OpenSource OLLAMA model and here is the sample output.
+
+
+
+
+Evaluating [████████████████████████████████████████] 100% | 12/12 | ollama:chat:qwen2.5:7b "Write a co"
+┌───────────────────┬───────────────────┬───────────────────┬───────────────────┬───────────────────┐
+│ topic             │ [ollama:chat:lla… │ [ollama:chat:lla… │ [ollama:chat:qwe… │ [ollama:chat:qwe… │
+│                   │ Write a tweet     │ Write a concise,  │ Write a tweet     │ Write a concise,  │
+│                   │ about {{topic}}   │ funny tweet about │ about {{topic}}   │ funny tweet about │
+│                   │                   │ {{topic}}         │                   │ {{topic}}         │
+├───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┤
+│ bananas           │ [PASS] "Just      │ [PASS] "Bananas   │ [PASS] 🍌 Ever    │ [PASS] 🍌 Why did │
+│                   │ peeled a ripe     │ are like the      │ wondered why      │ the banana go to  │
+│                   │ banana and I'm in │ in-laws - they    │ bananas are       │ the gym? To get a │
+│                   │ fruit heaven!     │ show up when      │ nature's perfect  │ little more       │
+│                   │ Nothing beats the │ you're not        │ snack? They're    │ peel-fection!     │
+│                   │ taste of a        │ expecting them,   │ packed with       │ 🏋️‍♂️😂 #BananaJokes │
+│                   │ classic yellow    │ make a mess       │ potassium for     │ #FitFruit         │
+│                   │ snack to start my │ wherever they go, │ that energy boost │                   │
+│                   │ day #BananaLove   │ and always seem   │ and are super     │                   │
+│                   │ #FruitLover"      │ to be going       │ easy to grab      │                   │
+│                   │                   │ brown.            │ on-the-go! 🏃‍♀️🍎   │                   │
+│                   │                   │ #bananaproblems"  │ #BananaLove       │                   │
+│                   │                   │                   │ #HealthySnack     │                   │
+├───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┤
+│ avocado toast     │ [PASS] "Avocado   │ [PASS] "Just      │ [PASS] 🌟 Avocado │ [PASS] 🥑🍞       │
+│                   │ toast, the        │ spent $12 on      │ toast is more     │ "Avocado toast:   │
+│                   │ ultimate brunch   │ avocado toast     │ than just         │ the perfect       │
+│                   │ game-changer. Who │ because my brunch │ breakfast! It's   │ solution when you │
+│                   │ else is guilty of │ skills are on     │ the versatile     │ can't decide if   │
+│                   │ slathering on an  │ point and my      │ star of morning   │ you're having a   │
+│                   │ extra slice (or   │ wallet's cryin'   │ meals and         │ sandwich or a     │
+│                   │ three) of creamy  │ 'help me'"        │ brunches, packed  │ salad for         │
+│                   │ goodness?         │ #avocadotoast     │ with healthy fats │ breakfast.        │
+│                   │ #AvocadoToast     │ #brunchproblems   │ to keep you       │ Because who needs │
+│                   │ #BrunchGoals      │                   │ fueled all day.   │ consistency       │
+│                   │ #FoodComaAhead"   │                   │ 🥄🥣 Give it a    │ anyway?           │
+│                   │                   │                   │ twist with our    │ #AvocadoToastAdv… │
+│                   │                   │                   │ recipe: toast +   │                   │
+│                   │                   │                   │ mashed avocado +  │                   │
+│                   │                   │                   │ sliced tomato + a │                   │
+│                   │                   │                   │ sprinkle of ...   │                   │
+├───────────────────┼───────────────────┼───────────────────┼───────────────────┼───────────────────┤
+│ new york city     │ [FAIL] "Just      │ [FAIL] "Just      │ [FAIL] ✨ New     │ [FAIL] lijah      │
+│                   │ explored the      │ spent an hour     │ York City never   │ McCoy in NYC:     │
+│                   │ bright lights and │ trying to hail a  │ sleeps! From the  │ Just found out    │
+│                   │ bustling streets  │ taxi in NYC and I │ bright lights of  │ the rain is suing │
+│                   │ of New York City! │ think the driver  │ Times Square to   │ the city for      │
+│                   │ From iconic       │ asked me for my   │ the serene beauty │ discrimination.   │
+│                   │ skyscrapers to    │ social security   │ of Central Park,  │ #NYCLife          │
+│                   │ world-class       │ number. I'm       │ there's always    │ #WeatherJealousy  │
+│                   │ museums, there's  │ starting to think │ something amazing │                   │
+│                   │ no shortage of    │ they're not just  │ happening in      │                   │
+│                   │ adventure in the  │ taking us to our  │ #NYC. Whether     │                   │
+│                   │ Big Apple #NYC    │ destination, but  │ you're savoring a │                   │
+│                   │ #NewYorkCity      │ also collecting   │ slice of pizza or │                   │
+│                   │ #Travel"          │ life savings      │ exploring iconic  │                   │
+│                   │                   │ #NYCProbs         │ museums, this     │                   │
+│                   │                   │ #TaxiTerror"      │ city has it a...  │                   │
+└───────────────────┴───────────────────┴───────────────────┴───────────────────┴───────────────────┘
+✓ Eval complete (ID: eval-8p1-2026-06-27T12:24:01)
+
+» View results: promptfoo view
+» Share with your team: https://promptfoo.app
+» Feedback: https://promptfoo.dev/feedback
+
+Total Tokens: 1,303
+  Eval: 727 (150 prompt, 577 completion)
+  Grading: 576 (457 prompt, 119 completion)
+
+Providers:
+  ollama:chat:qwen2.5:7b: 396 (0 requests; 77 prompt, 319 completion)
+  ollama:chat:llama3.2:3b: 331 (0 requests; 73 prompt, 258 completion)
+
+Results:
+  ✓ 8 passed (66.67%)
+  ✗ 4 failed (33.33%)
+  0 errors (0%)
+Duration: 43s (concurrency: 4)
+
