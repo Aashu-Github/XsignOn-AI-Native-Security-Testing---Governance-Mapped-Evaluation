@@ -7,19 +7,8 @@ A comprehensive framework for adversarial testing and security evaluation of AI 
 This repository implements a six-layer AI red teaming architecture designed to systematically identify vulnerabilities in AI systems before adversaries exploit them.  Each layer serves a specific function in the adversarial testing pipeline, from initial target abstraction through final reporting and evidence documentation.
 
 
+<img width="1522" height="902" alt="XSignOn drawio" src="https://github.com/user-attachments/assets/72405729-5a52-43ec-aa76-3f8b787fa823" />
 
-
-
-
-
-
-
-
-
-
-
-
-<img width="1522" height="880" alt="Untitled Diagram drawio" src="https://github.com/user-attachments/assets/bda049d8-22ff-4412-916c-055c0f20f156" />
 
 
 
