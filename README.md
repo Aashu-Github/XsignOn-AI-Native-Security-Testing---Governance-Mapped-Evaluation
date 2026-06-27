@@ -8,7 +8,8 @@ This repository implements a six-layer AI red teaming architecture designed to s
 
 
 📋 Layer Breakdown
-Layer 1: Target Abstraction Layer
+
+**Layer 1**: Target Abstraction Layer
 The foundation layer responsible for defining and modeling the AI system under test. This layer creates abstract representations of target systems, including model architectures, data pipelines, API endpoints, and integration points. It establishes the scope and boundaries for all subsequent red team operations. 
 
 Key Functions:
@@ -19,7 +20,7 @@ Dependency graph construction
 Interface documentation
 
 
-Layer 2: Offensive Layer
+**Layer 2**: Offensive Layer
 The core adversarial simulation engine that executes attack techniques against abstracted targets. This layer implements various attack vectors including prompt injection, model extraction, training data poisoning, adversarial examples, and API abuse scenarios.
 
 Key Functions:
@@ -31,7 +32,7 @@ API fuzzing and abuse
 Training data manipulation simulations
 
 
-Layer 3: Classification & Guardrail Layer
+**Layer 3**: Classification & Guardrail Layer
 Responsible for categorizing discovered vulnerabilities and enforcing safety boundaries during testing operations. This layer ensures that red team activities remain within defined ethical and operational constraints while properly classifying findings by severity, type, and impact. 
 
 Key Functions:
@@ -43,7 +44,7 @@ Impact assessment automation
 False positive filtering
 
 
-Layer 4: Evaluation Layer
+**Layer 4**: Evaluation Layer
 Provides systematic assessment and validation of discovered vulnerabilities. This layer verifies exploitability, measures actual impact, documents reproduction steps, and validates findings against established benchmarks and industry standards. 
 
 Key Functions:
@@ -55,7 +56,7 @@ Benchmark comparison
 Detection gap analysis
 
 
-Layer 5: Governance & Crosswalk Layer
+**Layer 5**: Governance & Crosswalk Layer
 Maps findings to regulatory requirements, compliance frameworks, and organizational policies. This layer ensures that red team outputs align with governance structures including AI Act requirements, NIST AI RMF, ISO standards, and industry-specific regulations. 
 
 Key Functions:
@@ -67,7 +68,7 @@ Audit trail generation
 Remediation priority scoring
 
 
-Layer 6: Reporting & Evidence Layer
+**Layer 6**: Reporting & Evidence Layer
 The final layer responsible for generating comprehensive reports, maintaining chain-of-custody for evidence, and facilitating communication between red teams, blue teams, and stakeholders. This layer produces both technical and executive-level outputs.
 
 Key Functions:
@@ -82,7 +83,8 @@ Remediation guidance generation
 
 
 
-⚠️ Legal & Ethical Considerations
+⚠️ **Legal & Ethical Considerations**
+
 This framework is intended for authorized security testing only. Always ensure:
 
 Written authorization from system owners
