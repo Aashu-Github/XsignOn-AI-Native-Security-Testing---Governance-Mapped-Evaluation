@@ -1,0 +1,140 @@
+<div>
+<h2 class="sr-only">Interactive demo of the Layer 4 CI gate: deepeval scores against OWASP LLM Top 10 categories with a configurable fail_under threshold, plus conditional RAGAS activation for RAG targets.</h2>
+
+<div style="display:flex; gap:12px; margin-bottom:1.25rem; flex-wrap:wrap;">
+  <div style="flex:1; min-width:220px;">
+    <label style="font-size:13px; color:var(--text-secondary); display:block; margin-bottom:4px;">Target</label>
+    <select id="scenario" style="width:100%;">
+      <option value="chatbot">support-chatbot-v2.3 (non-RAG)</option>
+      <option value="kb">internal-kb-assistant (RAG)</option>
+      <option value="code">code-assistant-nightly (non-RAG)</option>
+    </select>
+  </div>
+  <div style="flex:1; min-width:220px;">
+    <label style="font-size:13px; color:var(--text-secondary); display:block; margin-bottom:4px;">deepeval fail_under <span id="th-out" style="font-weight:500; color:var(--text-primary);">0.85</span></label>
+    <input type="range" id="threshold" min="0.5" max="0.95" step="0.01" value="0.85" style="width:100%;" />
+  </div>
+</div>
+
+<div id="verdict" style="border-radius:12px; padding:1rem 1.25rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+  <div>
+    <p style="font-size:13px; color:var(--text-secondary); margin:0 0 2px;">CI gate verdict</p>
+    <p id="verdict-text" style="font-size:18px; font-weight:500; margin:0;">-</p>
+  </div>
+  <div id="verdict-meta" style="text-align:right; font-size:13px; color:var(--text-secondary);"></div>
+</div>
+
+<div id="ragas-block" style="display:none; background:var(--surface-1); border-radius:var(--radius); padding:1rem 1.25rem; margin-bottom:1.25rem;">
+  <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+    <i class="ti ti-database-search" style="font-size:18px; color:var(--text-accent);" aria-hidden="true"></i>
+    <p style="font-size:13px; color:var(--text-secondary); margin:0;">RAGAS activated — target config resolved to a RAG stack</p>
+  </div>
+  <div id="ragas-rows"></div>
+</div>
+
+<div id="rows"></div>
+
+<div style="display:flex; gap:8px; margin-top:1.5rem; flex-wrap:wrap;">
+  <button id="q-thresh" style="font-size:13px;">Why 0.85 for fail_under? ↗</button>
+  <button id="q-ragas" style="font-size:13px;">How does RAGAS activation logic work? ↗</button>
+</div>
+</div>
+
+<script>
+const OWASP = [
+  ["LLM01","Prompt injection"],
+  ["LLM02","Insecure output handling"],
+  ["LLM03","Training data poisoning"],
+  ["LLM04","Model denial of service"],
+  ["LLM05","Supply chain vulnerabilities"],
+  ["LLM06","Sensitive information disclosure"],
+  ["LLM07","Insecure plugin design"],
+  ["LLM08","Excessive agency"],
+  ["LLM09","Overreliance"],
+  ["LLM10","Model theft"]
+];
+
+const DATA = {
+  chatbot: {
+    isRag: false,
+    scores: [0.83,0.94,0.97,0.90,0.88,0.92,0.95,0.71,0.86,0.99]
+  },
+  kb: {
+    isRag: true,
+    scores: [0.91,0.88,0.95,0.93,0.87,0.82,0.90,0.89,0.84,0.98],
+    ragas: { faithfulness: 0.79, relevancy: 0.91 }
+  },
+  code: {
+    isRag: false,
+    scores: [0.90,0.68,0.93,0.86,0.79,0.95,0.91,0.88,0.92,0.97]
+  }
+};
+
+const rowsEl = document.getElementById('rows');
+const ragasBlock = document.getElementById('ragas-block');
+const ragasRows = document.getElementById('ragas-rows');
+const verdictEl = document.getElementById('verdict');
+const verdictText = document.getElementById('verdict-text');
+const verdictMeta = document.getElementById('verdict-meta');
+const scenarioSel = document.getElementById('scenario');
+const thresholdInput = document.getElementById('threshold');
+const thOut = document.getElementById('th-out');
+
+function bar(label, sub, score, threshold){
+  const pass = score >= threshold;
+  const pct = Math.round(score*100);
+  const barColor = pass ? 'var(--fill-success, #639922)' : 'var(--fill-danger, #E24B4A)';
+  const badgeBg = pass ? 'var(--bg-success)' : 'var(--bg-danger)';
+  const badgeText = pass ? 'var(--text-success)' : 'var(--text-danger)';
+  return '<div style="display:flex; align-items:center; gap:12px; padding:8px 0; border-bottom:0.5px solid var(--border);">' +
+    '<div style="width:190px; flex-shrink:0;">' +
+      '<p style="font-size:13px; font-weight:500; margin:0;">'+label+'</p>' +
+      '<p style="font-size:12px; color:var(--text-muted); margin:0;">'+sub+'</p>' +
+    '</div>' +
+    '<div style="flex:1; height:8px; background:var(--surface-1); border-radius:4px; position:relative; overflow:hidden;">' +
+      '<div style="position:absolute; left:0; top:0; bottom:0; width:'+pct+'%; background:'+barColor+'; border-radius:4px;"></div>' +
+    '</div>' +
+    '<div style="width:48px; text-align:right; font-size:13px; font-weight:500;">'+score.toFixed(2)+'</div>' +
+    '<div style="width:52px; text-align:center;"><span style="font-size:12px; padding:2px 8px; border-radius:var(--radius); background:'+badgeBg+'; color:'+badgeText+';">'+(pass?'pass':'fail')+'</span></div>' +
+  '</div>';
+}
+
+function render(){
+  const key = scenarioSel.value;
+  const threshold = parseFloat(thresholdInput.value);
+  thOut.textContent = threshold.toFixed(2);
+  const d = DATA[key];
+
+  let html = '';
+  OWASP.forEach((o,i)=>{
+    html += bar(o[0], o[1], d.scores[i], threshold);
+  });
+  rowsEl.innerHTML = html;
+
+  let failCount = d.scores.filter(s=>s<threshold).length;
+  let ragasFail = false;
+  if(d.isRag){
+    ragasBlock.style.display = 'block';
+    ragasRows.innerHTML =
+      bar('LLM02 / LLM09','faithfulness', d.ragas.faithfulness, threshold) +
+      bar('LLM09','answer relevancy', d.ragas.relevancy, threshold);
+    if(d.ragas.faithfulness < threshold || d.ragas.relevancy < threshold) ragasFail = true;
+  } else {
+    ragasBlock.style.display = 'none';
+  }
+
+  const blocked = failCount > 0 || ragasFail;
+  verdictEl.style.background = blocked ? 'var(--bg-danger)' : 'var(--bg-success)';
+  verdictText.style.color = blocked ? 'var(--text-danger)' : 'var(--text-success)';
+  verdictText.textContent = blocked ? 'Block merge' : 'Allow merge';
+  const totalFail = failCount + (ragasFail ? 1 : 0);
+  verdictMeta.textContent = totalFail + ' metric' + (totalFail===1?'':'s') + ' below ' + threshold.toFixed(2);
+}
+
+scenarioSel.addEventListener('change', render);
+thresholdInput.addEventListener('input', render);
+document.getElementById('q-thresh').addEventListener('click', ()=> sendPrompt('How should we calibrate the deepeval fail_under threshold instead of guessing 0.85?'));
+document.getElementById('q-ragas').addEventListener('click', ()=> sendPrompt('How should Layer 4 detect that a target is a RAG stack to trigger RAGAS?'));
+
+render();
+</script>
