@@ -99,11 +99,11 @@ Final decision: BLOCKED_BEFORE_MODEL
 Initial benchmark result:
 
 ```text
-Correct: 4 / 5
-Accuracy: 80.0%
+Total tests: 8
+Accuracy: 100.0%
 ```
 
-One test missed the profanity/abuse case, which is useful because it shows that even a larger model still needs better category prompts, benchmark tuning, and more evaluation.
+The expanded controlled benchmark passed all 8 initial tests. This is not a production-grade benchmark yet, but it confirms the GPU guardrail pipeline can run multi-category checks and produce measurable results.
 
 ## Logs
 
@@ -146,3 +146,4 @@ model-based-demo/
 model-based-gpu-demo/
     Larger Granite Guardian 4.1 8B GPU guardrail
 ```
+
