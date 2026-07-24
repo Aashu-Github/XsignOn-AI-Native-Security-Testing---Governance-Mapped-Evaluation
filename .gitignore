@@ -1,0 +1,25 @@
+# virtual environments
+*-env/
+venv/
+.venv/
+
+# databases & local test data
+*.db
+*.db-wal
+*.db-shm
+promptfoo_export.json
+promptfoo-test/
+
+# datasets
+Datasets/
+*.parquet
+
+# secrets
+.env
+*.key
+secrets.*
+
+# python
+__pycache__/
+*.pyc
+.DS_Store
