@@ -1,0 +1,6 @@
+# Install these only when enabling real DeepEval/RAGAS or Gemini target execution.
+deepeval>=3.0
+ragas>=0.4,<0.5
+google-genai>=1.0
+openai>=1.0
+pydantic>=2.0

@@ -1,0 +1,4 @@
+{
+  "status": "placeholder",
+  "message": "Run python tools_generate_sbom.py to collect the local Python package inventory and file hashes. This evidence does not replace a vulnerability or provenance review."
+}

@@ -1,0 +1,3 @@
+case_id,metric,human_rating,reviewer_notes
+MED-00001-summary,deepeval_correctness,,Enter a 1-5 rating after a blind human review
+MED-00001-summary,deepeval_faithfulness,,Enter a 1-5 rating after a blind human review
