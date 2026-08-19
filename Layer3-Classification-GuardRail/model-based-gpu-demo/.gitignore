@@ -1,5 +1,6 @@
-gpu_guardrail_log.jsonl
-benchmark_results.json
 __pycache__/
 *.pyc
 .env
+gpu_guardrail_log.jsonl
+gpu_guardrail_api_log.jsonl
+benchmark_results.json

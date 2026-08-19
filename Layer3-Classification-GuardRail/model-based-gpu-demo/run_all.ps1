@@ -1,0 +1,1 @@
+Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "$PWD\run_backend.ps1"; Start-Process powershell -ArgumentList "-NoExit", "-ExecutionPolicy", "Bypass", "-File", "$PWD\run_ui.ps1"; Start-Sleep -Seconds 3; Start-Process "http://127.0.0.1:5173"; Start-Process "http://127.0.0.1:8000/docs"
