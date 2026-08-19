@@ -480,3 +480,67 @@ def run_benchmark():
 
     BENCHMARK_FILE.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     return summary
+@app.get("/models/status")
+def models_status():
+    try:
+        response = requests.get("http://localhost:11434/api/tags", timeout=10)
+        response.raise_for_status()
+        data = response.json()
+
+        installed_models = [
+            model.get("name", "")
+            for model in data.get("models", [])
+        ]
+
+        guardrail_available = any(
+            DEFAULT_GUARDRAIL_MODEL in model
+            for model in installed_models
+        )
+
+        main_model_available = any(
+            DEFAULT_MAIN_MODEL in model
+            for model in installed_models
+        )
+
+        return {
+            "backend_api": "online",
+            "ollama": "online",
+            "guardrail_model": DEFAULT_GUARDRAIL_MODEL,
+            "guardrail_available": guardrail_available,
+            "main_model": DEFAULT_MAIN_MODEL,
+            "main_model_available": main_model_available,
+            "installed_models": installed_models
+        }
+
+    except requests.exceptions.RequestException as error:
+        return {
+            "backend_api": "online",
+            "ollama": "offline",
+            "guardrail_model": DEFAULT_GUARDRAIL_MODEL,
+            "guardrail_available": False,
+            "main_model": DEFAULT_MAIN_MODEL,
+            "main_model_available": False,
+            "installed_models": [],
+            "error": str(error)
+        }
+@app.get("/logs/export")
+def export_logs():
+    events = load_logs(10000)
+
+    return {
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "format": "json",
+        "count": len(events),
+        "events": events
+    }
+
+
+@app.post("/logs/clear")
+def clear_logs():
+    if LOG_FILE.exists():
+        LOG_FILE.unlink()
+
+    return {
+        "status": "cleared",
+        "message": "Audit logs cleared."
+    }

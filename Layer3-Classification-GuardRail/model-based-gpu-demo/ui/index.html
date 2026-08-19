@@ -250,6 +250,37 @@
       </div>
 
       <div class="grid">
+        <section class="card full">
+  <h3>System Health / Model Status</h3>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="label">Backend API</div>
+      <div class="value" id="backendStatus">Checking</div>
+    </div>
+
+    <div class="metric">
+      <div class="label">Ollama Runtime</div>
+      <div class="value" id="ollamaStatus">Checking</div>
+    </div>
+
+    <div class="metric">
+      <div class="label">Guardrail Model</div>
+      <div class="value" id="guardrailStatus">Checking</div>
+    </div>
+
+    <div class="metric">
+      <div class="label">Main LLM</div>
+      <div class="value" id="mainModelStatus">Checking</div>
+    </div>
+  </div>
+
+  <p class="small" id="modelDetails">
+    Checking local model runtime...
+  </p>
+
+  <button onclick="refreshModelStatus()">Refresh Model Status</button>
+</section>
         <section class="card">
           <h3>Run Guarded Prompt</h3>
 
@@ -386,6 +417,8 @@
         <section class="card full">
           <h3>Recent Audit Logs</h3>
           <button onclick="refreshLogs()">Refresh Logs</button>
+          <button class="secondary" onclick="exportLogs()">Export Logs</button>
+          <button class="danger" onclick="clearLogs()">Clear Logs</button>
           <table>
             <thead>
               <tr>
@@ -424,7 +457,42 @@
     const API_BASE = "http://127.0.0.1:8000";
     let lastJSON = {};
     let currentMode = "strict";
+async function refreshModelStatus() {
+  try {
+    const res = await fetch(`${API_BASE}/models/status`);
+    const data = await res.json();
 
+    const backendEl = document.getElementById("backendStatus");
+    const ollamaEl = document.getElementById("ollamaStatus");
+    const guardrailEl = document.getElementById("guardrailStatus");
+    const mainEl = document.getElementById("mainModelStatus");
+
+    backendEl.textContent = data.backend_api === "online" ? "Online" : "Offline";
+    backendEl.className = data.backend_api === "online" ? "value allowed" : "value blocked";
+
+    ollamaEl.textContent = data.ollama === "online" ? "Online" : "Offline";
+    ollamaEl.className = data.ollama === "online" ? "value allowed" : "value blocked";
+
+    guardrailEl.textContent = data.guardrail_available ? "Available" : "Missing";
+    guardrailEl.className = data.guardrail_available ? "value allowed" : "value blocked";
+
+    mainEl.textContent = data.main_model_available ? "Available" : "Missing";
+    mainEl.className = data.main_model_available ? "value allowed" : "value blocked";
+
+    document.getElementById("modelDetails").textContent =
+      `Guardrail: ${data.guardrail_model} | Main LLM: ${data.main_model}`;
+
+  } catch (err) {
+    document.getElementById("backendStatus").textContent = "Offline";
+    document.getElementById("backendStatus").className = "value blocked";
+    document.getElementById("ollamaStatus").textContent = "Unknown";
+    document.getElementById("ollamaStatus").className = "value warn";
+    document.getElementById("guardrailStatus").textContent = "Unknown";
+    document.getElementById("guardrailStatus").className = "value warn";
+    document.getElementById("mainModelStatus").textContent = "Unknown";
+    document.getElementById("mainModelStatus").className = "value warn";
+  }
+}
     async function checkHealth() {
       try {
         const res = await fetch(`${API_BASE}/health`);
@@ -642,7 +710,34 @@
         tbody.appendChild(tr);
       });
     }
+async function exportLogs() {
+  const res = await fetch(`${API_BASE}/logs/export`);
+  const data = await res.json();
 
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: "application/json"
+  });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "layer3_audit_logs_export.json";
+  link.click();
+}
+
+async function clearLogs() {
+  const confirmed = confirm("Clear all local audit logs?");
+
+  if (!confirmed) return;
+
+  await fetch(`${API_BASE}/logs/clear`, {
+    method: "POST"
+  });
+
+  await refreshMetrics();
+  await refreshLogs();
+
+  alert("Audit logs cleared.");
+}
     function copyResponse() {
       const text = document.getElementById("finalResponse").textContent;
       navigator.clipboard.writeText(text);
@@ -671,6 +766,7 @@
     }
 
     checkHealth();
+    refreshModelStatus();
     applyMode();
     refreshMetrics();
     refreshLogs();
