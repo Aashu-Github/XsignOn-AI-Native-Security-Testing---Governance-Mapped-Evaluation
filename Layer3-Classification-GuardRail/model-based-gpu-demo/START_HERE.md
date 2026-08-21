@@ -1,50 +1,56 @@
-# Layer 3 GPU Guardrail POC — Start Here
+# Start Here — Layer 3 AI Governance Command Center
 
-## What This Is
+This folder contains the GPU-based Layer 3 guardrail proof of concept.
 
-This is the Layer 3 Classification & GuardRail proof-of-concept for the AI Native Security Testing project.
+It runs a local AI governance dashboard using:
 
-It runs a local AI guardrail pipeline using:
-
-```text
-Guardrail Model: granite4.1-guardian:8b
-Main LLM: llama3.2
-Runtime: Ollama
-Backend: FastAPI
-Frontend: HTML/CSS/JavaScript dashboard
-```
-
-## Current Pipeline
-
-```text
-User Prompt
-→ Input Guardrail
-→ Main LLM
-→ Output Guardrail
-→ Final Decision
-→ JSON Audit Log
-→ Dashboard Metrics
-```
-
-## Main Features
-
-- Local GPU-based guardrail model
-- Input safety checks before the main LLM
-- Output safety checks after the main LLM
 - FastAPI backend
-- Browser-based dashboard
-- Fast Demo Mode, Strict Guardrail Mode, and Audit Mode
-- Risk categories: jailbreak, profanity, violence, harm
-- Runtime metrics
-- Recent audit logs
-- Benchmark evaluation
-- Accuracy, precision, recall, and F1 score
-- False positive and false negative rates
-- JSON event export for future evaluation layers
+- Ollama local model runtime
+- Granite Guardian guardrail model
+- llama3.2 main model
+- Premium HTML/CSS/JavaScript dashboard
 
-## How To Run
+---
+
+## 1. Required Models
+
+Make sure Ollama is installed and running.
+
+Pull the required models:
+
+```powershell
+ollama pull granite4.1-guardian:8b
+ollama pull llama3.2
+```
+
+Check installed models:
+
+```powershell
+ollama list
+```
+
+Expected models:
+
+```text
+granite4.1-guardian:8b
+llama3.2
+```
+
+---
+
+## 2. Install Dependencies
 
 From this folder:
+
+```powershell
+pip install -r requirements.txt
+```
+
+---
+
+## 3. Run Everything
+
+Use the one-command launcher:
 
 ```powershell
 .\run_all.ps1
@@ -53,92 +59,141 @@ From this folder:
 This opens:
 
 ```text
-Backend API: http://127.0.0.1:8000
-API Docs:    http://127.0.0.1:8000/docs
-Dashboard:   http://127.0.0.1:5173
+Dashboard: http://127.0.0.1:5173
+API Docs:   http://127.0.0.1:8000/docs
 ```
 
-If PowerShell blocks scripts, run:
+---
 
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
+## 4. Best Demo Flow
 
-Then run:
-
-```powershell
-.\run_all.ps1
-```
-
-## Demo Order
+Use this order for a clean walkthrough:
 
 1. Open the dashboard.
-2. Confirm the API status says Online.
-3. Select Fast Demo Mode for a live demo.
-4. Click Safe Example.
-5. Click Run Pipeline.
-6. Show that the final decision is ALLOWED.
-7. Click Unsafe Example.
-8. Click Run Pipeline.
-9. Show that the final decision is BLOCKED_BEFORE_MODEL.
-10. Show Runtime Metrics.
-11. Show Benchmark Evaluation.
-12. Show Recent Audit Logs.
-13. Explain that the JSON output can be sent to the next evaluation layer.
+2. Click **Focus Mode** for a cleaner demo view.
+3. Run the safe prompt and show `ALLOWED`.
+4. Load a jailbreak prompt and show blocking before the main model.
+5. Click **Load Example Policy** and run it.
+6. Show `BLOCKED_BEFORE_MODEL` with `custom_policy`.
+7. Click **Readiness** and show `7/7`.
+8. Scroll to the Evaluation Dataset Manager.
+9. Click **Evaluate Dataset**.
+10. Export the full POC governance report.
+11. Open Swagger at `http://127.0.0.1:8000/docs`.
 
-## Mode Explanation
+---
 
-### Fast Demo Mode
+## 5. Important Dashboard Features
 
-Fast Mode checks fewer categories and disables output guardrail checks to make live demos faster.
+The dashboard includes:
 
-Best for quick presentations.
+- Input guardrail checks
+- Output guardrail checks
+- Custom company policy checking
+- Risk scoring
+- Severity visualization
+- Decision trace timeline
+- Live activity feed
+- Runtime metrics
+- Benchmark evaluation
+- Evaluation dataset manager
+- POC readiness report
+- Audit logs
+- Full governance report export
+- Focus Mode for clean screenshots
 
-### Strict Guardrail Mode
+---
 
-Strict Mode checks all current risk categories and runs both input and output guardrails.
+## 6. Key Backend Endpoints
 
-Best for showing the full pipeline.
+```text
+GET    /health
+GET    /config
+GET    /models/status
+POST   /pipeline/run
+GET    /logs/recent
+GET    /logs/export
+POST   /logs/clear
+GET    /metrics/summary
+POST   /benchmark/run
+GET    /poc/readiness
+GET    /poc/model-comparison
+GET    /poc/export-report
+GET    /dataset/list
+POST   /dataset/add
+DELETE /dataset/delete/{case_id}
+POST   /dataset/reset
+POST   /dataset/evaluate
+```
 
-### Audit Mode
+Swagger:
 
-Audit Mode is used when saved logs and evidence matter.
+```text
+http://127.0.0.1:8000/docs
+```
 
-Best for evaluation, debugging, and traceability.
+---
 
-## Why This Matters
+## 7. Manual Run Commands
 
-This prototype shows that a guardrail layer should not only block unsafe prompts. It should also produce structured evidence that can be reviewed, measured, logged, and passed to later layers.
+Backend:
 
-Layer 3 can output JSON containing:
+```powershell
+py -m uvicorn api:app --reload --port 8000
+```
 
-- original prompt
-- input guardrail results
-- blocked risks
-- main model response
-- output guardrail results
-- final decision
-- latency
-- benchmark metrics
-- audit logs
+Frontend:
 
-## Current Limitations
+```powershell
+cd ui
+py -m http.server 5173
+```
 
-- Benchmark dataset is still small
-- Risk categories are limited
-- No database yet
-- No authentication yet
-- No Docker Compose packaging yet
-- No RAG groundedness checks yet
-- No full multi-layer orchestration yet
+---
 
-## Next Goals
+## 8. Generated Local Files
 
-- Add more risk categories
-- Add model comparison
-- Add RAG groundedness checks
-- Add answer relevance checks
-- Add persistent database logging
-- Add Docker Compose
-- Add screenshots and GIFs for GitHub
-- Add integration with other project layers
+These files may be created during demos:
+
+```text
+gpu_guardrail_api_log.jsonl
+benchmark_results.json
+evaluation_dataset.json
+evaluation_dataset_results.json
+poc_report_export.json
+```
+
+Some generated result files are ignored by Git because they are local run artifacts.
+
+---
+
+## 9. What This POC Proves
+
+This POC demonstrates how an AI system can add a governance layer around a main model.
+
+The system can:
+
+- Block unsafe prompts before model inference
+- Review outputs before release
+- Apply custom company-specific policies
+- Log every decision as audit evidence
+- Evaluate guardrail behavior with benchmark and dataset tools
+- Export a full governance report for review
+
+---
+
+## 10. Production Notes
+
+This is a local proof of concept, not a production safety system.
+
+A production version would need:
+
+- Larger red-team datasets
+- Human review workflows
+- Persistent database storage
+- Authentication
+- Role-based access control
+- Strong audit retention
+- Monitoring and alerting
+- Deployment hardening
+- Broader safety validation
