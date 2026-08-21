@@ -4,3 +4,8 @@ __pycache__/
 gpu_guardrail_log.jsonl
 gpu_guardrail_api_log.jsonl
 benchmark_results.json
+
+evaluation_dataset_results.json
+ui/index.backup.html
+ui/index.old-dashboard.html
+ui/index.v1.html
