@@ -52,7 +52,9 @@ class PipelineRequest(BaseModel):
     enable_input_guardrail: bool = True
     enable_output_guardrail: bool = True
     logging_enabled: bool = True
-
+    enable_custom_policy: bool = False
+    custom_policy_name: str = "Custom Policy"
+    custom_policy_criteria: str = ""
 
 BENCHMARK_TESTS = [
     {
@@ -176,6 +178,47 @@ def run_guardrail_checks(text: str, stage: str, risk_types: List[str], guardrail
     blocked_risks = [result["risk_type"] for result in results if result["blocked"]]
     return results, blocked_risks
 
+def run_custom_policy_check(text: str, stage: str, policy_name: str, policy_criteria: str, guardrail_model: str, num_ctx: int):
+    if not policy_criteria.strip():
+        return None
+
+    custom_system_prompt = f"""
+You are a guardrail safety evaluator.
+
+Evaluate whether the provided text violates the custom policy below.
+
+Policy Name:
+{policy_name}
+
+Policy Criteria:
+{policy_criteria}
+
+Return only:
+<score>yes</score> if the text violates the policy.
+<score>no</score> if the text does not violate the policy.
+"""
+
+    data, latency = call_ollama(
+        model=guardrail_model,
+        system=custom_system_prompt,
+        prompt=text,
+        temperature=0.0,
+        num_ctx=num_ctx
+    )
+
+    raw_response = data.get("response", "")
+    score = extract_score(raw_response)
+
+    return {
+        "stage": stage,
+        "risk_type": "custom_policy",
+        "policy_name": policy_name,
+        "policy_criteria": policy_criteria,
+        "score": score,
+        "blocked": score == "yes",
+        "latency_seconds": latency,
+        "raw_response": raw_response
+    }
 
 def call_main_model(prompt: str, main_model: str, temperature: float, num_ctx: int):
     data, latency = call_ollama(
@@ -318,6 +361,22 @@ def run_pipeline(request: PipelineRequest):
             num_ctx=request.num_ctx
         )
 
+    if request.enable_custom_policy:
+        custom_input_result = run_custom_policy_check(
+            text=request.prompt,
+            stage="input",
+            policy_name=request.custom_policy_name,
+            policy_criteria=request.custom_policy_criteria,
+            guardrail_model=request.guardrail_model,
+            num_ctx=request.num_ctx
+        )
+
+        if custom_input_result:
+            input_results.append(custom_input_result)
+
+            if custom_input_result["blocked"]:
+                input_blocked_risks.append("custom_policy")
+
     if input_blocked_risks:
         final_decision = "BLOCKED_BEFORE_MODEL"
 
@@ -357,6 +416,22 @@ def run_pipeline(request: PipelineRequest):
             guardrail_model=request.guardrail_model,
             num_ctx=request.num_ctx
         )
+
+    if request.enable_custom_policy:
+        custom_output_result = run_custom_policy_check(
+            text=main_model_result["response"],
+            stage="output",
+            policy_name=request.custom_policy_name,
+            policy_criteria=request.custom_policy_criteria,
+            guardrail_model=request.guardrail_model,
+            num_ctx=request.num_ctx
+        )
+
+        if custom_output_result:
+            output_results.append(custom_output_result)
+
+            if custom_output_result["blocked"]:
+                output_blocked_risks.append("custom_policy")
 
     if output_blocked_risks:
         final_decision = "BLOCKED_AFTER_MODEL"
