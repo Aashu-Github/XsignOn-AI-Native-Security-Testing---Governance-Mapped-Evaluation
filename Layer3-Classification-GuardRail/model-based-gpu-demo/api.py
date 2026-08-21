@@ -957,3 +957,62 @@ def dataset_evaluate():
     DATASET_EVAL_FILE.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
     return report
+
+POC_REPORT_FILE = Path("poc_report_export.json")
+
+
+def read_json_file_if_exists(path: Path):
+    if not path.exists():
+        return None
+
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return {
+            "error": f"Could not parse {str(path)}"
+        }
+
+
+@app.get("/poc/export-report")
+def poc_export_report():
+    dataset = load_dataset()
+    benchmark_data = read_json_file_if_exists(BENCHMARK_FILE)
+    dataset_eval_data = read_json_file_if_exists(Path("evaluation_dataset_results.json"))
+
+    report = {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "project": "Layer 3 Classification & GuardRail",
+        "report_type": "Full POC Governance Report",
+        "runtime": {
+            "backend": "FastAPI",
+            "frontend": "AI Governance Command Center",
+            "model_runtime": "Ollama",
+            "api_base": "http://127.0.0.1:8000"
+        },
+        "models": {
+            "guardrail_model": DEFAULT_GUARDRAIL_MODEL,
+            "main_model": DEFAULT_MAIN_MODEL
+        },
+        "model_status": models_status(),
+        "readiness_report": poc_readiness(),
+        "model_comparison": model_comparison(),
+        "dataset": {
+            "count": len(dataset),
+            "cases": dataset
+        },
+        "benchmark_results": benchmark_data,
+        "dataset_evaluation_results": dataset_eval_data,
+        "recent_audit_logs": load_logs(50),
+        "governance_summary": {
+            "input_guardrails": True,
+            "output_guardrails": True,
+            "custom_company_policy_checks": True,
+            "audit_logging": True,
+            "benchmark_metrics": benchmark_data is not None,
+            "dataset_manager": True,
+            "readiness_reporting": True
+        }
+    }
+
+    POC_REPORT_FILE.write_text(json.dumps(report, indent=2), encoding="utf-8")
+    return report

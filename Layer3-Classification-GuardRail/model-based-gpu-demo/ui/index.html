@@ -1392,6 +1392,7 @@ kbd {
               <button onclick="loadTestPrompt('safe')">Load Safe Demo</button>
               <button class="danger" onclick="loadTestPrompt('jailbreak')">Load Jailbreak Demo</button>
               <button class="secondary" onclick="exportConfigSnapshot()">Export Config Snapshot</button>
+              <button class="secondary" onclick="exportPOCReport()">Export Full POC Report</button>
             </div>
           </div>
 
@@ -2698,6 +2699,31 @@ showLoading("Running Benchmark", "Evaluating the controlled guardrail test set. 
       toast("Exported config snapshot");
       addActivity("EXPORT", "POC config snapshot exported.", "good");
     }
+
+    async function exportPOCReport() {
+  showLoading(
+    "Exporting Full POC Report",
+    "Combining readiness, model status, benchmark, dataset evaluation, and audit logs."
+  );
+
+  addActivity("EXPORT", "Full POC report export started.", "info");
+
+  try {
+    const data = await fetchJSON(`${API_BASE}/poc/export-report`);
+
+    downloadJSON(data, "layer3_full_poc_governance_report.json");
+    setText("rawJson", JSON.stringify(data, null, 2));
+    setLastAction("Full POC report exported");
+
+    addActivity("EXPORT", "Full POC governance report exported.", "good");
+    toast("Full POC report exported");
+  } catch (err) {
+    addActivity("EXPORT ERROR", `Full POC report export failed: ${err.message}`, "bad");
+    toast(`Report export failed: ${err.message}`);
+  } finally {
+    hideLoading();
+  }
+}
 
     async function copyResponse() {
       const text = $("finalResponse").textContent;
