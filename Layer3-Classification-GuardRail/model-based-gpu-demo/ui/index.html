@@ -299,6 +299,20 @@
     This panel shows the active configuration used by the dashboard. It helps make the POC reproducible because the selected mode, models, risk checks, context size, and guardrail settings are visible before running a test.
   </p>
 </section>
+
+<section class="card full">
+  <h3>POC Readiness Report</h3>
+
+  <p class="small">
+    Checks whether the local guardrail demo has the required runtime pieces for a meeting or technical demo.
+  </p>
+
+  <button class="secondary" onclick="checkPOCReadiness()">Run Readiness Check</button>
+
+  <div class="response-box" id="readinessReport" style="margin-top: 12px;">
+    Readiness check has not been run yet.
+  </div>
+</section>
         <section class="card">
           <h3>Run Guarded Prompt</h3>
 
@@ -538,6 +552,34 @@
   document.getElementById("configOutputGuardrail").textContent = outputGuardrail ? "Enabled" : "Disabled";
   document.getElementById("configApiBase").textContent = API_BASE;
 }
+
+async function checkPOCReadiness() {
+  const box = document.getElementById("readinessReport");
+  box.textContent = "Checking POC readiness...";
+
+  try {
+    const res = await fetch(`${API_BASE}/poc/readiness`);
+    const data = await res.json();
+
+    const lines = [];
+
+    lines.push(`Readiness Score: ${data.readiness_score}`);
+    lines.push(`Ready For Demo: ${data.ready_for_demo ? "YES" : "NO"}`);
+    lines.push("");
+    lines.push("Checks:");
+
+    data.checks.forEach((check) => {
+      const status = check.passed ? "PASS" : "FAIL";
+      lines.push(`- ${status}: ${check.name}`);
+      lines.push(`  ${check.details}`);
+    });
+
+    box.textContent = lines.join("\n");
+  } catch (err) {
+    box.textContent = `Readiness check failed: ${err.message}`;
+  }
+}
+
 async function refreshModelStatus() {
   try {
     const res = await fetch(`${API_BASE}/models/status`);

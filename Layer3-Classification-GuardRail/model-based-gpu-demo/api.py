@@ -619,3 +619,56 @@ def clear_logs():
         "status": "cleared",
         "message": "Audit logs cleared."
     }
+
+@app.get("/poc/readiness")
+def poc_readiness():
+    model_status_data = models_status()
+
+    checks = [
+        {
+            "name": "Backend API online",
+            "passed": True,
+            "details": "FastAPI backend is responding."
+        },
+        {
+            "name": "Ollama runtime online",
+            "passed": model_status_data.get("ollama") == "online",
+            "details": "Ollama is reachable from the backend."
+        },
+        {
+            "name": "Guardrail model available",
+            "passed": model_status_data.get("guardrail_available") is True,
+            "details": model_status_data.get("guardrail_model")
+        },
+        {
+            "name": "Main LLM available",
+            "passed": model_status_data.get("main_model_available") is True,
+            "details": model_status_data.get("main_model")
+        },
+        {
+            "name": "Audit logs available",
+            "passed": LOG_FILE.exists(),
+            "details": str(LOG_FILE)
+        },
+        {
+            "name": "Benchmark results available",
+            "passed": BENCHMARK_FILE.exists(),
+            "details": str(BENCHMARK_FILE)
+        },
+        {
+            "name": "Custom policy checker available",
+            "passed": True,
+            "details": "PipelineRequest supports enable_custom_policy, custom_policy_name, and custom_policy_criteria."
+        }
+    ]
+
+    passed_count = sum(1 for check in checks if check["passed"])
+    total_count = len(checks)
+    ready_for_demo = passed_count >= 6
+
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "readiness_score": f"{passed_count}/{total_count}",
+        "ready_for_demo": ready_for_demo,
+        "checks": checks
+    }
