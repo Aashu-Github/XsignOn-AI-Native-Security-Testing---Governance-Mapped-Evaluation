@@ -1209,6 +1209,132 @@ label {
   }
 }
 
+/* =========================
+   PHASE 2B — COMMAND CENTER POLISH
+   ========================= */
+
+.command-deck {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.command-tile {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(47, 129, 247, 0.14);
+  border-radius: 20px;
+  padding: 15px;
+  background:
+    radial-gradient(circle at top left, rgba(47, 129, 247, 0.12), transparent 14rem),
+    linear-gradient(180deg, rgba(3, 7, 14, 0.94), rgba(6, 12, 22, 0.86));
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.32);
+}
+
+.command-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.command-value {
+  color: #eaf3ff;
+  font-size: 1.05rem;
+  font-weight: 920;
+  letter-spacing: -0.03em;
+  overflow-wrap: anywhere;
+}
+
+.shortcut-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.shortcut {
+  border: 1px solid rgba(47, 129, 247, 0.16);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #b9cae3;
+  background: rgba(2, 6, 12, 0.72);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+kbd {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-bottom-color: rgba(148, 163, 184, 0.42);
+  border-radius: 7px;
+  padding: 2px 6px;
+  color: #dbeafe;
+  background: rgba(15, 23, 42, 0.92);
+  font-weight: 900;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: none;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(8px);
+}
+
+.loading-card {
+  width: min(420px, calc(100vw - 32px));
+  border: 1px solid rgba(47, 129, 247, 0.24);
+  border-radius: 24px;
+  padding: 22px;
+  background:
+    radial-gradient(circle at top left, rgba(47, 129, 247, 0.18), transparent 18rem),
+    rgba(2, 6, 12, 0.94);
+  box-shadow: 0 30px 100px rgba(0, 0, 0, 0.58);
+}
+
+.loading-spinner {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 3px solid rgba(96, 165, 250, 0.18);
+  border-top-color: #3b82f6;
+  animation: spin 780ms linear infinite;
+  margin-bottom: 14px;
+}
+
+.loading-title {
+  font-size: 1.15rem;
+  font-weight: 950;
+  letter-spacing: -0.04em;
+}
+
+.loading-subtitle {
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 6px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 960px) {
+  .command-deck {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .command-deck {
+    grid-template-columns: 1fr;
+  }
+}
+
   </style>
 </head>
 
@@ -1279,6 +1405,34 @@ label {
           </div>
         </div>
       </section>
+
+      <section class="command-deck">
+  <div class="command-tile">
+    <div class="command-label">Last Action</div>
+    <div class="command-value" id="lastAction">Dashboard loaded</div>
+  </div>
+
+  <div class="command-tile">
+    <div class="command-label">Active Mode</div>
+    <div class="command-value" id="deckMode">strict</div>
+  </div>
+
+  <div class="command-tile">
+    <div class="command-label">Active Risks</div>
+    <div class="command-value" id="deckRisks">jailbreak, profanity, violence, harm</div>
+  </div>
+
+  <div class="command-tile">
+    <div class="command-label">Demo Controls</div>
+    <div class="command-value">Keyboard ready</div>
+    <div class="shortcut-row">
+      <span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> Run</span>
+<span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>B</kbd> Benchmark</span>
+<span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> Readiness</span>
+<span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>E</kbd> Export</span>
+    </div>
+  </div>
+</section>
 
       <section class="grid">
         <div class="card span-12">
@@ -1640,6 +1794,16 @@ label {
     </main>
   </div>
 
+  <div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-card">
+    <div class="loading-spinner"></div>
+    <div class="loading-title" id="loadingTitle">Working...</div>
+    <div class="loading-subtitle" id="loadingSubtitle">
+      Running local guardrail pipeline.
+    </div>
+  </div>
+</div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -1665,6 +1829,25 @@ label {
       if (typeof value === "number") return Number.isInteger(value) ? String(value) : value.toFixed(3);
       return String(value);
     }
+
+    function setLastAction(text) {
+  setText("lastAction", text);
+}
+
+function showLoading(title, subtitle) {
+  setText("loadingTitle", title || "Working...");
+  setText("loadingSubtitle", subtitle || "Running local guardrail task.");
+  $("loadingOverlay").style.display = "grid";
+}
+
+function hideLoading() {
+  $("loadingOverlay").style.display = "none";
+}
+
+function updateCommandDeck() {
+  setText("deckMode", $("modeSelect").value);
+  setText("deckRisks", getSelectedRisks().join(", ") || "None");
+}
 
     function toast(message) {
       const holder = $("toast");
@@ -1799,6 +1982,7 @@ function renderRiskSeverity(parsed) {
       setText("configCtx", $("numCtx").value);
       setText("configOutputGuardrail", outputGuardrail ? "Enabled" : "Disabled");
       setText("configCustomPolicy", customPolicy ? "Enabled" : "Disabled");
+      updateCommandDeck();
     }
 
     function applyMode() {
@@ -1991,6 +2175,8 @@ function renderRiskSeverity(parsed) {
       $("runButton").textContent = "Running...";
       setText("finalResponse", "Running guardrail pipeline...");
       toast("Pipeline started");
+      setLastAction("Pipeline running");
+showLoading("Running Guardrail Pipeline", "Checking input, model response, output guardrail, and custom policy.");
       addActivity("PIPELINE", "Guardrail pipeline run started.", "info");
 
       try {
@@ -2005,6 +2191,7 @@ function renderRiskSeverity(parsed) {
         await refreshMetrics();
         await refreshLogs();
         toast("Pipeline completed");
+        setLastAction(`Pipeline completed: ${data.final_decision || "UNKNOWN"}`);
         const decision = data.final_decision || "UNKNOWN";
 const risks = [...new Set([...(data.input_blocked_risks || []), ...(data.output_blocked_risks || [])])];
 addActivity(
@@ -2020,6 +2207,7 @@ addActivity(
       } finally {
         $("runButton").disabled = false;
         $("runButton").textContent = "Run Pipeline";
+        hideLoading();
       }
     }
 
@@ -2093,6 +2281,8 @@ addActivity(
       $("benchmarkButton").disabled = true;
       $("benchmarkButton").textContent = "Running...";
       toast("Benchmark started. This may take a while.");
+      setLastAction("Benchmark running");
+showLoading("Running Benchmark", "Evaluating the controlled guardrail test set. This may take a while.");
       addActivity("BENCHMARK", "Benchmark run started.", "info");
 
       try {
@@ -2101,6 +2291,7 @@ addActivity(
         renderBenchmarkMetrics(data.metrics || data);
         setText("rawJson", JSON.stringify(data, null, 2));
         toast("Benchmark completed");
+        setLastAction("Benchmark completed");
         addActivity("BENCHMARK", "Benchmark run completed successfully.", "good");
       } catch (err) {
         setText("rawJson", `Benchmark failed: ${err.message}`);
@@ -2109,6 +2300,7 @@ addActivity(
       } finally {
         $("benchmarkButton").disabled = false;
         $("benchmarkButton").textContent = "Run Benchmark";
+        hideLoading();
       }
     }
 
@@ -2134,6 +2326,7 @@ addActivity(
 
         box.textContent = lines.join("\n");
         toast(`Readiness: ${data.readiness_score}`);
+        setLastAction(`Readiness checked: ${data.readiness_score}`);
         addActivity(
   "READINESS",
   `Readiness check completed: ${data.readiness_score} | Ready for demo: ${data.ready_for_demo ? "YES" : "NO"}`,
@@ -2326,6 +2519,30 @@ addActivity(
       await refreshLogs();
       toast("Dashboard refreshed");
     }
+
+    document.addEventListener("keydown", (event) => {
+  const key = event.key.toLowerCase();
+
+  if (event.ctrlKey && key === "enter") {
+    event.preventDefault();
+    runPipeline();
+  }
+
+  if (event.ctrlKey && event.shiftKey && key === "b") {
+    event.preventDefault();
+    runBenchmark();
+  }
+
+  if (event.ctrlKey && event.shiftKey && key === "y") {
+    event.preventDefault();
+    checkPOCReadiness();
+  }
+
+  if (event.ctrlKey && event.shiftKey && key === "e") {
+    event.preventDefault();
+    exportConfigSnapshot();
+  }
+});
 
     checkHealth();
     refreshModelStatus();
