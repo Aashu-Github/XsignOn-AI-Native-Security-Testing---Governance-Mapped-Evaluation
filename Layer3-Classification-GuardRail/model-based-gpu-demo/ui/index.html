@@ -313,6 +313,21 @@
     Readiness check has not been run yet.
   </div>
 </section>
+
+<section class="card full">
+  <h3>Model Comparison / Design Rationale</h3>
+
+  <p class="small">
+    Explains why this POC uses a separate guardrail model, main model, runtime modes, custom policy checks, and audit logging.
+  </p>
+
+  <button class="secondary" onclick="loadModelComparison()">Load Model Comparison</button>
+
+  <div class="response-box" id="modelComparisonBox" style="margin-top: 12px;">
+    Model comparison has not been loaded yet.
+  </div>
+</section>
+
         <section class="card">
           <h3>Run Guarded Prompt</h3>
 
@@ -577,6 +592,53 @@ async function checkPOCReadiness() {
     box.textContent = lines.join("\n");
   } catch (err) {
     box.textContent = `Readiness check failed: ${err.message}`;
+  }
+}
+
+async function loadModelComparison() {
+  const box = document.getElementById("modelComparisonBox");
+  box.textContent = "Loading model comparison...";
+
+  try {
+    const res = await fetch(`${API_BASE}/poc/model-comparison`);
+    const data = await res.json();
+
+    const lines = [];
+
+    lines.push(`Architecture: ${data.architecture}`);
+    lines.push("");
+    lines.push(data.summary);
+    lines.push("");
+
+    lines.push("Models:");
+    data.models.forEach((model) => {
+      lines.push("");
+      lines.push(`${model.name}`);
+      lines.push(`Role: ${model.role}`);
+      lines.push(`Used For: ${model.used_for.join(", ")}`);
+      lines.push(`Strengths: ${model.strengths.join("; ")}`);
+      lines.push(`Tradeoffs: ${model.tradeoffs.join("; ")}`);
+    });
+
+    lines.push("");
+    lines.push("Runtime Modes:");
+    Object.entries(data.modes).forEach(([modeName, mode]) => {
+      lines.push("");
+      lines.push(`${modeName.toUpperCase()} MODE`);
+      lines.push(`Purpose: ${mode.purpose}`);
+      lines.push(`Behavior: ${mode.behavior}`);
+      lines.push(`Best For: ${mode.best_for}`);
+    });
+
+    lines.push("");
+    lines.push("Design Choices:");
+    data.design_choices.forEach((choice) => {
+      lines.push(`- ${choice}`);
+    });
+
+    box.textContent = lines.join("\n");
+  } catch (err) {
+    box.textContent = `Model comparison failed: ${err.message}`;
   }
 }
 
@@ -949,6 +1011,7 @@ async function clearLogs() {
     updateConfigPanel();
     refreshMetrics();
     refreshLogs();
+    loadModelComparison();
   </script>
 </body>
 </html>

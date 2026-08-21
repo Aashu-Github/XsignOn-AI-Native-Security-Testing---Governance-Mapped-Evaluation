@@ -672,3 +672,77 @@ def poc_readiness():
         "ready_for_demo": ready_for_demo,
         "checks": checks
     }
+
+@app.get("/poc/model-comparison")
+def model_comparison():
+    return {
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "architecture": "Two-model guardrail architecture",
+        "summary": "This POC separates safety evaluation from normal response generation. The guardrail model evaluates risk before and after the main model runs.",
+        "models": [
+            {
+                "name": DEFAULT_GUARDRAIL_MODEL,
+                "role": "Guardrail / safety evaluator",
+                "used_for": [
+                    "Input risk classification",
+                    "Output risk classification",
+                    "Custom company policy checks",
+                    "Audit evidence"
+                ],
+                "strengths": [
+                    "Designed for safety-style yes/no evaluation",
+                    "Works well for strict checks",
+                    "Provides clear blocked/allowed decisions",
+                    "Can be reused across multiple applications"
+                ],
+                "tradeoffs": [
+                    "Adds latency because each risk category is checked separately",
+                    "Strict Mode is slower than Fast Mode",
+                    "Small local benchmark is useful for plumbing but not production validation"
+                ]
+            },
+            {
+                "name": DEFAULT_MAIN_MODEL,
+                "role": "Main response generator",
+                "used_for": [
+                    "Answering safe user prompts",
+                    "Generating normal assistant responses",
+                    "Demonstrating guarded model behavior"
+                ],
+                "strengths": [
+                    "Lightweight enough for local demo use",
+                    "Only runs after input guardrail approval",
+                    "Allows the guardrail system to be tested without using a cloud model"
+                ],
+                "tradeoffs": [
+                    "Not the focus of the safety layer",
+                    "Responses still need output guardrail review",
+                    "Can be swapped with a stronger model in a production deployment"
+                ]
+            }
+        ],
+        "modes": {
+            "fast": {
+                "purpose": "Live demo mode",
+                "behavior": "Uses fewer checks and disables output guardrail to reduce latency.",
+                "best_for": "Quick demos and smoke tests."
+            },
+            "strict": {
+                "purpose": "Full guardrail mode",
+                "behavior": "Checks all default risk categories on input and output.",
+                "best_for": "More complete local testing."
+            },
+            "audit": {
+                "purpose": "Evidence and governance mode",
+                "behavior": "Keeps full checks and emphasizes logs, metrics, and exportable evidence.",
+                "best_for": "Compliance-style review and technical walkthroughs."
+            }
+        },
+        "design_choices": [
+            "Input guardrail blocks unsafe prompts before the main model runs.",
+            "Output guardrail checks the generated response before returning it to the user.",
+            "Custom policy checking lets a company define organization-specific safety rules.",
+            "Audit logs make each decision reviewable after the fact.",
+            "Metrics and benchmark results help evaluate the guardrail layer instead of relying on vibes."
+        ]
+    }
