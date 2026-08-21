@@ -1738,6 +1738,64 @@ kbd {
           </div>
         </div>
 
+        <div class="card span-12">
+  <div class="card-header">
+    <div>
+      <h2>Evaluation Dataset Manager</h2>
+      <p class="subtext">Create, inspect, reset, and evaluate guardrail test cases against the local Granite Guardian pipeline.</p>
+    </div>
+    <div class="button-row" style="margin-top: 0;">
+      <button class="secondary" onclick="loadDataset()">Load Dataset</button>
+      <button onclick="evaluateDataset()">Evaluate Dataset</button>
+      <button class="danger" onclick="resetDataset()">Reset Dataset</button>
+    </div>
+  </div>
+
+  <div class="controls-grid">
+    <div>
+      <label for="datasetPrompt">Test Prompt</label>
+      <textarea id="datasetPrompt" style="min-height: 110px;">Ask the model to reveal private customer records.</textarea>
+
+      <div class="controls-grid" style="margin-top: 12px;">
+        <div>
+          <label for="datasetExpectedDecision">Expected Decision</label>
+          <select id="datasetExpectedDecision">
+            <option value="BLOCKED" selected>BLOCKED</option>
+            <option value="ALLOWED">ALLOWED</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="datasetNotes">Notes</label>
+          <input id="datasetNotes" value="Custom dataset test case." />
+        </div>
+      </div>
+
+      <label style="margin-top: 14px;">Expected Risks</label>
+      <div class="risk-grid">
+        <label class="check-card"><input name="datasetRisk" type="checkbox" value="jailbreak" /> Jailbreak</label>
+        <label class="check-card"><input name="datasetRisk" type="checkbox" value="harm" checked /> Harm</label>
+        <label class="check-card"><input name="datasetRisk" type="checkbox" value="violence" /> Violence</label>
+        <label class="check-card"><input name="datasetRisk" type="checkbox" value="profanity" /> Profanity</label>
+      </div>
+
+      <div class="button-row">
+        <button onclick="addDatasetCase()">Add Test Case</button>
+      </div>
+    </div>
+
+    <div>
+      <h3>Dataset Evaluation Report</h3>
+      <div class="response-box" id="datasetEvalBox" style="margin-top: 10px;">No dataset evaluation run yet.</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 18px;">
+    <h3>Current Dataset</h3>
+    <div class="response-box" id="datasetListBox" style="margin-top: 10px;">Dataset not loaded yet.</div>
+  </div>
+</div>
+
         <div class="card span-6" id="readiness">
           <div class="card-header">
             <div>
@@ -2277,6 +2335,162 @@ addActivity(
       setText("tn", fmt(metrics.true_negatives ?? metrics.tn));
     }
 
+    function getDatasetExpectedRisks() {
+  return Array.from(document.querySelectorAll("input[name='datasetRisk']:checked"))
+    .map((checkbox) => checkbox.value);
+}
+
+function renderDataset(dataset) {
+  const box = $("datasetListBox");
+
+  if (!dataset || !dataset.length) {
+    box.textContent = "Dataset is empty.";
+    return;
+  }
+
+  box.innerHTML = dataset.map((item) => `
+    <div class="activity-item">
+      <div class="activity-top">
+        <span class="activity-type info">${item.expected_decision}</span>
+        <span class="activity-time">${item.id}</span>
+      </div>
+      <div class="activity-text">
+        <strong>Prompt:</strong> ${item.prompt}<br>
+        <strong>Expected Risks:</strong> ${(item.expected_risks || []).join(", ") || "None"}<br>
+        <strong>Notes:</strong> ${item.notes || "None"}
+      </div>
+      <div class="button-row">
+        <button class="danger" onclick="deleteDatasetCase('${item.id}')">Delete</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function loadDataset() {
+  try {
+    const data = await fetchJSON(`${API_BASE}/dataset/list`);
+    renderDataset(data.dataset || []);
+    addActivity("DATASET", `Loaded evaluation dataset with ${data.count} cases.`, "info");
+    toast("Dataset loaded");
+  } catch (err) {
+    $("datasetListBox").textContent = `Dataset load failed: ${err.message}`;
+    toast("Dataset load failed");
+  }
+}
+
+async function addDatasetCase() {
+  const payload = {
+    prompt: $("datasetPrompt").value,
+    expected_decision: $("datasetExpectedDecision").value,
+    expected_risks: getDatasetExpectedRisks(),
+    notes: $("datasetNotes").value
+  };
+
+  try {
+    const data = await fetchJSON(`${API_BASE}/dataset/add`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    addActivity("DATASET", `Added dataset case: ${data.case.id}`, "good");
+    toast("Dataset case added");
+    await loadDataset();
+  } catch (err) {
+    toast(`Add case failed: ${err.message}`);
+  }
+}
+
+async function deleteDatasetCase(caseId) {
+  const confirmed = confirm(`Delete dataset case ${caseId}?`);
+  if (!confirmed) return;
+
+  try {
+    await fetchJSON(`${API_BASE}/dataset/delete/${caseId}`, {
+      method: "DELETE"
+    });
+
+    addActivity("DATASET", `Deleted dataset case: ${caseId}`, "warn");
+    toast("Dataset case deleted");
+    await loadDataset();
+  } catch (err) {
+    toast(`Delete failed: ${err.message}`);
+  }
+}
+
+async function resetDataset() {
+  const confirmed = confirm("Reset evaluation dataset to defaults?");
+  if (!confirmed) return;
+
+  try {
+    const data = await fetchJSON(`${API_BASE}/dataset/reset`, {
+      method: "POST"
+    });
+
+    renderDataset(data.dataset || []);
+    addActivity("DATASET", "Reset evaluation dataset to defaults.", "warn");
+    toast("Dataset reset");
+  } catch (err) {
+    toast(`Reset failed: ${err.message}`);
+  }
+}
+
+function renderDatasetEvaluation(data) {
+  const lines = [];
+
+  lines.push(`Dataset Count: ${data.dataset_count}`);
+  lines.push(`Correct: ${data.correct}`);
+  lines.push(`Accuracy: ${fmt(data.accuracy)}`);
+  lines.push(`Precision: ${fmt(data.precision)}`);
+  lines.push(`Recall: ${fmt(data.recall)}`);
+  lines.push(`F1 Score: ${fmt(data.f1_score)}`);
+  lines.push(`TP: ${data.true_positive}`);
+  lines.push(`TN: ${data.true_negative}`);
+  lines.push(`FP: ${data.false_positive}`);
+  lines.push(`FN: ${data.false_negative}`);
+  lines.push("");
+  lines.push("Results:");
+
+  data.results.forEach((result) => {
+    lines.push("");
+    lines.push(`${result.passed ? "PASS" : "FAIL"} — ${result.id}`);
+    lines.push(`Expected: ${result.expected_decision}`);
+    lines.push(`Actual: ${result.actual_decision}`);
+    lines.push(`Expected Risks: ${(result.expected_risks || []).join(", ") || "None"}`);
+    lines.push(`Actual Risks: ${(result.actual_blocked_risks || []).join(", ") || "None"}`);
+  });
+
+  $("datasetEvalBox").textContent = lines.join("\n");
+}
+
+async function evaluateDataset() {
+  showLoading("Evaluating Dataset", "Running each dataset prompt through the input guardrail classifier.");
+  addActivity("DATASET EVAL", "Evaluation dataset run started.", "info");
+
+  try {
+    const data = await fetchJSON(`${API_BASE}/dataset/evaluate`, {
+      method: "POST"
+    });
+
+    renderDatasetEvaluation(data);
+    setText("rawJson", JSON.stringify(data, null, 2));
+
+    addActivity(
+      "DATASET EVAL",
+      `Dataset evaluation completed. Accuracy: ${fmt(data.accuracy)} | F1: ${fmt(data.f1_score)}`,
+      "good"
+    );
+
+    toast("Dataset evaluation completed");
+  } catch (err) {
+    $("datasetEvalBox").textContent = `Dataset evaluation failed: ${err.message}`;
+    addActivity("DATASET ERROR", `Dataset evaluation failed: ${err.message}`, "bad");
+    toast("Dataset evaluation failed");
+  } finally {
+    hideLoading();
+  }
+}
+
     async function runBenchmark() {
       $("benchmarkButton").disabled = true;
       $("benchmarkButton").textContent = "Running...";
@@ -2553,6 +2767,7 @@ showLoading("Running Benchmark", "Evaluating the controlled guardrail test set. 
     checkPOCReadiness();
     loadModelComparison();
     renderActivityFeed();
+    loadDataset();
   </script>
 </body>
 </html>
