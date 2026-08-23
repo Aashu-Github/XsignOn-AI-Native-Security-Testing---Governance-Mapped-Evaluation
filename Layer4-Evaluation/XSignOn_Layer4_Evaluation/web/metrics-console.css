@@ -1,0 +1,30 @@
+@import url('/static/console.css');
+
+.metric-search-label{cursor:default}
+.metric-overview{margin-bottom:18px}
+.metric-stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.metric-toolbar-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.metric-board{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.metric-zone{min-height:420px;margin-bottom:0;transition:border-color .15s,background .15s}
+.metric-zone.drag-over{border-color:var(--blue);background:rgba(61,139,255,.045)}
+.metric-zone-count{display:inline-grid;place-items:center;min-width:30px;height:24px;border-radius:12px;background:rgba(63,185,80,.13);color:var(--green);font:700 11px var(--mono);margin-left:auto}
+.metric-zone-count.muted{background:rgba(138,151,173,.12);color:var(--muted)}
+.metric-drop-list{display:grid;gap:9px;min-height:310px;outline:none}
+.metric-drag-card{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:start;background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:11px;transition:transform .12s,border-color .12s,opacity .12s}
+.metric-drag-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.metric-drag-card.is-dragging{opacity:.48}
+.metric-drag-handle{color:var(--dim);font-size:16px;line-height:1.2;cursor:grab;padding-top:2px}
+.metric-drag-content{min-width:0}
+.metric-card-topline{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.metric-group,.metric-requirement{display:inline-block;border-radius:12px;padding:2px 7px;font-size:9px;text-transform:uppercase;letter-spacing:.45px;background:rgba(61,139,255,.12);color:#79c0ff}
+.metric-requirement{background:rgba(163,113,247,.12);color:var(--purple)}
+.metric-drag-content h3{font-size:12px;margin-bottom:3px}
+.metric-drag-content code{font:10px var(--mono);color:var(--cyan);word-break:break-word}
+.metric-drag-content p{color:var(--muted);font-size:10.5px;line-height:1.45;margin-top:6px}
+.metric-move-button{align-self:center;background:var(--panel3);border:1px solid var(--border2);border-radius:6px;color:var(--muted);padding:6px 8px;font-size:10px;white-space:nowrap}
+.metric-move-button:hover{color:var(--text);border-color:var(--blue)}
+.metric-empty{display:grid;place-items:center;min-height:130px;border:1px dashed var(--border2);border-radius:8px;color:var(--dim);font-size:11px;text-align:center;padding:18px}
+.integrity-panel{border-color:rgba(45,212,191,.28)}
+.metric-note-console code{font:11px var(--mono);color:var(--cyan)}
+@media(max-width:1050px){.metric-board{grid-template-columns:1fr}.metric-zone{min-height:0}.metric-stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:760px){.metric-toolbar-actions{margin-left:0}.metric-stats{grid-template-columns:1fr}.metric-drag-card{grid-template-columns:18px 1fr}.metric-move-button{grid-column:2;justify-self:start}}
