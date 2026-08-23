@@ -3,379 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="XSignOn Layer 4 AI evaluation console for correctness, groundedness, safety, robustness, consistency, regression, and OWASP evidence.">
-  <meta name="theme-color" content="#f5f2eb">
-  <title>XSignOn · Layer 4 Evaluation</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css">
+  <meta name="description" content="XSignOn Layer 4 evaluation console for evidence-backed AI quality, security, robustness, consistency, and release gating.">
+  <meta name="theme-color" content="#0a0e14">
+  <title>XSignOn — Layer 4 Evaluation Console</title>
+  <link rel="stylesheet" href="/static/console.css">
 </head>
-<body data-page="dashboard">
-  <a class="skip-link" href="#configure">Skip to configuration</a>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="XSignOn Layer 4 home">
+        <span class="brand-mark">X4</span>
+        <span class="brand-name">XSignOn<small>AI SECURITY · LAYER 4</small></span>
+      </a>
 
-  <nav class="site-nav" aria-label="Primary navigation">
-    <a class="nav-logo" href="#top" aria-label="XSignOn Layer 4 home">
-      <span class="nav-mark">X4</span>
-      <span>XSignOn</span>
-    </a>
+      <a class="top-search" href="/metrics" aria-label="Open metric catalog">
+        <span>⌕</span><span>Search evaluation metrics</span><kbd>Metrics</kbd>
+      </a>
 
-    <div class="nav-links">
-      <a href="#configure">Configure</a>
-      <a href="/metrics">Metrics</a>
-      <a href="#results">Results</a>
-      <a href="#runs">Runs</a>
-    </div>
-
-    <div class="environment-chip" id="environmentStatus" role="status" aria-live="polite">
-      <span class="status-dot"></span>
-      <span>Checking environment</span>
-    </div>
-  </nav>
-
-  <header class="hero" id="top">
-    <div class="hero-left">
-      <p class="hero-eyebrow">// AI evaluation · Layer 04</p>
-      <h1 class="hero-title">Evaluate.<br>Trace. <em>Gate.</em></h1>
-      <p class="hero-copy">
-        Run evidence-backed quality, groundedness, safety, robustness, consistency,
-        regression, and OWASP checks against a local or hosted model.
-      </p>
-      <div class="hero-actions">
-        <a class="button button-dark" href="#configure">Configure a run</a>
-        <a class="button button-ghost" href="#runs">View run history</a>
+      <div class="top-utils">
+        <div class="environment-chip" id="environmentStatus" role="status" aria-live="polite">
+          <span class="status-dot"></span><span>Checking environment</span>
+        </div>
+        <a class="icon-button" href="/metrics" title="Metric catalog" aria-label="Metric catalog">▤</a>
+        <span class="avatar" title="Layer 4">L4</span>
       </div>
-      <div class="hero-footnote">
-        <span>No pseudo-scores</span>
-        <span>Local-first</span>
-        <span>Traceable evidence</span>
+    </header>
+
+    <aside class="sidebar" aria-label="Layer 4 navigation">
+      <div class="nav-section">Operate</div>
+      <a class="nav-item active" href="#top"><span class="nav-ico">▚</span> Overview</a>
+      <a class="nav-item" href="#configure"><span class="nav-ico">＋</span> New Evaluation</a>
+      <a class="nav-item" href="#runs"><span class="nav-ico">≣</span> Runs</a>
+      <div class="nav-section">Analyze</div>
+      <a class="nav-item" href="#results"><span class="nav-ico">◎</span> Results</a>
+      <a class="nav-item" href="/metrics"><span class="nav-ico">◫</span> Metrics</a>
+      <a class="nav-item" href="#evidence"><span class="nav-ico">⚑</span> Evidence</a>
+      <div class="nav-section">Layer stack</div>
+      <div class="layer-stack" aria-label="XSignOn layer stack">
+        <span class="layer-chip upstream">L2</span><span class="layer-chip upstream">L3</span>
+        <span class="layer-chip active">L4</span><span class="layer-chip downstream">L5</span><span class="layer-chip downstream">L6</span>
       </div>
-    </div>
+      <p class="sidebar-note">L4 evaluates target behavior, calculates evidence-backed metrics, and gates the run.</p>
+    </aside>
 
-    <div class="hero-right" aria-label="Layer 4 status overview">
-      <div class="hero-card">
-        <div class="hero-card-head">
-          <div class="hero-initials">L4</div>
-          <span class="live-label"><span class="status-dot"></span> Ready</span>
-        </div>
-        <h2>Evaluation Console</h2>
-        <p class="hero-role">// XSignOn · standalone mode</p>
-
-        <div class="info-row">
-          <span class="info-label">Target</span>
-          <strong id="heroTarget">Local record</strong>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Dataset</span>
-          <strong>Stroke records</strong>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Judges</span>
-          <strong id="heroJudges">Core evaluators</strong>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Gate</span>
-          <strong>Fail closed</strong>
+    <main class="main" id="top">
+      <section class="overview">
+        <div class="page-head">
+          <div>
+            <p class="crumb">XSignOn / <b>Layer 4</b></p>
+            <h1>Evaluation Overview</h1>
+            <p class="page-sub">Evidence-backed model quality, groundedness, safety, robustness, consistency, and release gating.</p>
+          </div>
+          <div class="page-actions">
+            <a class="btn ghost" href="/metrics">Metric catalog</a><a class="btn" href="#configure">＋ New Evaluation</a>
+          </div>
         </div>
 
-        <div class="card-caption">
-          <span>Correctness</span>
-          <span>Faithfulness</span>
-          <span>Safety</span>
-          <span>OWASP</span>
+        <div class="stat-row">
+          <article class="stat accent"><div class="stat-key">Target under test</div><div class="stat-value compact" id="heroTarget">Loading…</div><div class="stat-detail">provider · model</div></article>
+          <article class="stat"><div class="stat-key">Evaluation engine</div><div class="stat-value compact" id="heroJudges">Core evaluators</div><div class="stat-detail">optional semantic judges</div></article>
+          <article class="stat"><div class="stat-key">Gate policy</div><div class="stat-value compact">Fail closed</div><div class="stat-detail">critical checks cannot average out</div></article>
+          <article class="stat"><div class="stat-key">Selected metrics</div><div class="stat-value compact" id="selectedMetricCount">Loading…</div><div class="stat-detail">configured for next run</div></article>
         </div>
-      </div>
-    </div>
-  </header>
 
-  <main>
-    <section class="section" id="configure">
-      <div class="section-intro">
-        <p class="section-number">01 — Configure</p>
-        <div>
-          <h2>Set up the evaluation.</h2>
-          <p>Choose the model under test, the dataset sample, and optional semantic judges.</p>
-        </div>
-      </div>
-
-      <div class="config-shell">
-        <article class="config-block">
-          <div class="block-heading">
-            <span class="block-index">A</span>
-            <div>
-              <p class="mono-label">Target system</p>
-              <h3>Model under test</h3>
+        <div class="cols-2">
+          <article class="panel">
+            <div class="panel-head"><div><h2>Layer 4 evaluation flow</h2><p>Target output → deterministic evaluators → optional judges → gate → evidence.</p></div><span class="chip on">L4 active</span></div>
+            <div class="pipeline">
+              <div class="pipe-node"><strong>Target</strong><span>local · Ollama · Gemini · trace</span></div><span class="pipe-arrow">→</span>
+              <div class="pipe-node"><strong>Core checks</strong><span>quality · security · robustness</span></div><span class="pipe-arrow">→</span>
+              <div class="pipe-node purple"><strong>Semantic judges</strong><span>DeepEval · RAGAS</span></div><span class="pipe-arrow">→</span>
+              <div class="pipe-node green"><strong>Gate + evidence</strong><span>PASS / FAIL · OWASP · reports</span></div>
             </div>
-          </div>
+          </article>
+          <article class="panel">
+            <div class="panel-head"><div><h2>What Layer 4 measures</h2><p>Actual evaluator capabilities in this package.</p></div></div>
+            <div class="capability-grid"><span>Correctness</span><span>Groundedness</span><span>Safety</span><span>Robustness</span><span>Consistency</span><span>Regression</span><span>Calibration</span><span>OWASP evidence</span></div>
+          </article>
+        </div>
+      </section>
 
-          <div class="form-grid">
-            <label class="field field-wide">
-              <span>Target provider</span>
-              <select id="targetProvider">
-                <option value="local-record">Local record reference target</option>
-                <option value="ollama" selected>Ollama local model</option>
-                <option value="gemini">Gemini API</option>
-                <option value="trace-file">Upstream trace JSONL</option>
-              </select>
-            </label>
-
-            <label class="field field-wide">
-              <span>Target model</span>
-              <input id="targetModel" value="llama3.2:latest" autocomplete="off">
-              <small id="targetModelHint">Reference target included with the package.</small>
-            </label>
-
-            <label class="field">
-              <span>Medical records</span>
-              <input id="maxRecords" type="number" min="1" max="100" value="6">
-            </label>
-
-            <label class="field">
-              <span>Repeat count</span>
-              <input id="repeatCount" type="number" min="1" max="10" value="1">
-            </label>
-
-            <label class="field">
-              <span>Random seed</span>
-              <input id="seed" type="number" value="42">
-            </label>
-
-            <label class="field">
-              <span>Ollama base URL</span>
-              <input id="targetBaseUrl" value="http://localhost:11434" autocomplete="url">
-            </label>
-          </div>
-        </article>
-
-        <article class="config-block judge-block" id="judgeBlock">
-          <div class="block-heading block-heading-split">
-            <div class="heading-group">
-              <span class="block-index">B</span>
-              <div>
-                <p class="mono-label">Semantic evaluation</p>
-                <h3>DeepEval &amp; RAGAS</h3>
-              </div>
+      <section class="section" id="configure">
+        <div class="section-head"><div><p class="crumb">Operate / <b>New Evaluation</b></p><h2>Configure evaluation</h2><p>Choose the model under test, dataset sample, repeat strategy, and optional semantic judges.</p></div><span class="status-badge neutral">Ready</span></div>
+        <div class="cols-2 config-layout">
+          <article class="panel">
+            <div class="panel-head"><div><h3>Target system</h3><p>Model and execution settings</p></div><span class="chip on">A</span></div>
+            <div class="field"><label for="targetProvider">Target provider</label><select id="targetProvider"><option value="local-record">Local record reference target</option><option value="ollama" selected>Ollama local model</option><option value="gemini">Gemini API</option><option value="trace-file">Upstream trace JSONL</option></select></div>
+            <div class="field"><label for="targetModel">Target model</label><input id="targetModel" value="llama3.2:latest" autocomplete="off"><small id="targetModelHint">Use the exact model identifier for the selected provider.</small></div>
+            <div class="form-grid">
+              <div class="field"><label for="maxRecords">Medical records</label><input id="maxRecords" type="number" min="1" max="100" value="6"></div>
+              <div class="field"><label for="repeatCount">Repeat count</label><input id="repeatCount" type="number" min="1" max="10" value="1"></div>
+              <div class="field"><label for="seed">Random seed</label><input id="seed" type="number" value="42"></div>
+              <div class="field"><label for="targetBaseUrl">Ollama base URL</label><input id="targetBaseUrl" value="http://localhost:11434" autocomplete="url"></div>
             </div>
-            <span class="optional-badge">Optional</span>
-          </div>
+          </article>
 
-          <p class="block-copy">
-            Enable real library-backed semantic scoring. Credentials stay in environment variables and are never submitted by this page.
-          </p>
-
-          <div class="judge-switches">
-            <label class="toggle-card" for="enableDeepEval">
-              <span>
-                <strong>DeepEval</strong>
-                <small>Correctness, faithfulness, relevancy</small>
-              </span>
-              <span class="toggle-control">
-                <input id="enableDeepEval" type="checkbox">
-                <span class="toggle-track" aria-hidden="true"></span>
-              </span>
-            </label>
-
-            <label class="toggle-card" for="enableRagas">
-              <span>
-                <strong>RAGAS</strong>
-                <small>Faithfulness, precision, recall</small>
-              </span>
-              <span class="toggle-control">
-                <input id="enableRagas" type="checkbox">
-                <span class="toggle-track" aria-hidden="true"></span>
-              </span>
-            </label>
-          </div>
-
-          <div class="form-grid judge-fields" id="judgeFields">
-            <label class="field">
-              <span>Judge provider</span>
-              <select id="judgeProvider">
-                <option value="ollama">Ollama</option>
-                <option value="gemini">Gemini</option>
-                <option value="openai-default">OpenAI default</option>
-              </select>
-            </label>
-
-            <label class="field field-wide-on-small">
-              <span>Judge model</span>
-              <input id="judgeModel" value="llama3.2:latest" autocomplete="off">
-            </label>
-
-            <label class="field">
-              <span>Maximum judged cases</span>
-              <input id="judgeMaxCases" type="number" min="1" max="100" value="8">
-            </label>
-          </div>
-        </article>
-      </div>
-
-      <div class="metric-settings-callout">
-        <div>
-          <p class="mono-label">Metric selection</p>
-          <h3 id="selectedMetricCount">Loading metric settings</h3>
-          <p id="selectedMetricNames">Choose which metrics affect this run and its pass/fail gate.</p>
+          <article class="panel judge-panel" id="judgeBlock">
+            <div class="panel-head"><div><h3>Semantic evaluation</h3><p>Real library-backed DeepEval and RAGAS scoring</p></div><span class="chip">Optional</span></div>
+            <div class="toggle-grid">
+              <label class="toggle-card" for="enableDeepEval"><span><strong>DeepEval</strong><small>Correctness · faithfulness · relevancy</small></span><span class="toggle-control"><input id="enableDeepEval" type="checkbox"><span class="toggle-track"></span></span></label>
+              <label class="toggle-card" for="enableRagas"><span><strong>RAGAS</strong><small>Faithfulness · precision · recall</small></span><span class="toggle-control"><input id="enableRagas" type="checkbox"><span class="toggle-track"></span></span></label>
+            </div>
+            <div class="form-grid judge-fields" id="judgeFields">
+              <div class="field"><label for="judgeProvider">Judge provider</label><select id="judgeProvider"><option value="ollama">Ollama</option><option value="gemini">Gemini</option><option value="openai-default">OpenAI default</option></select></div>
+              <div class="field"><label for="judgeModel">Judge model</label><input id="judgeModel" value="llama3.2:latest" autocomplete="off"></div>
+              <div class="field"><label for="judgeMaxCases">Maximum judged cases</label><input id="judgeMaxCases" type="number" min="1" max="100" value="8"></div>
+            </div>
+          </article>
         </div>
-        <a class="button button-ghost" href="/metrics">Choose metrics <span aria-hidden="true">→</span></a>
-      </div>
 
-      <div class="run-strip">
-        <div>
-          <p class="mono-label">Ready to evaluate</p>
-          <p id="runHelp">Core mode works without an API key. Semantic judges require the full dependencies.</p>
-        </div>
-        <button class="button button-dark run-button" id="runButton" type="button">
-          <span class="button-label">Run evaluation</span>
-          <span class="button-arrow" aria-hidden="true">↗</span>
-        </button>
-      </div>
+        <article class="panel metric-callout"><div class="panel-head inline-head"><div><h3>Metric selection</h3><p id="selectedMetricNames">Choose which metrics affect this run and its pass/fail gate.</p></div><a class="btn ghost small" href="/metrics">Choose metrics →</a></div></article>
 
-      <div class="progress-card hidden" id="progressPanel" aria-live="polite">
-        <div class="progress-head">
-          <div>
-            <p class="mono-label">Evaluation in progress</p>
-            <strong id="progressMessage">Queued</strong>
-          </div>
-          <strong id="progressPercent">0%</strong>
-        </div>
-        <div class="progress-track" aria-hidden="true">
-          <div id="progressBar"></div>
-        </div>
-      </div>
-    </section>
+        <div class="launch-bar"><div><strong>Ready to evaluate</strong><span id="runHelp">Core mode works without an API key. Semantic judges require full dependencies.</span></div><button class="btn run-button" id="runButton" type="button"><span class="button-label">Run evaluation</span><span aria-hidden="true">▶</span></button></div>
+        <div class="progress-card hidden" id="progressPanel" aria-live="polite"><div class="progress-head"><div><span class="mono-label">Evaluation in progress</span><strong id="progressMessage">Queued</strong></div><strong id="progressPercent">0%</strong></div><div class="progress-track"><div id="progressBar"></div></div></div>
+      </section>
 
-    <section class="section results-section hidden" id="results">
-      <div class="section-intro">
-        <p class="section-number">02 — Results</p>
-        <div>
-          <h2>What the model demonstrated.</h2>
-          <p id="resultRunMeta">Scores, evidence, failures, and gate reasoning for the latest run.</p>
+      <section class="section results-section hidden" id="results">
+        <div class="section-head"><div><p class="crumb">Analyze / <b>Latest Results</b></p><h2>Evaluation results</h2><p id="resultRunMeta">Scores, evidence, failures, and gate reasoning for the latest run.</p></div><a id="htmlReportLink" class="btn ghost small" target="_blank" rel="noopener">Open report ↗</a></div>
+        <div class="stat-row results-stats">
+          <article class="stat verdict-card"><div class="stat-key">Gate verdict</div><div class="stat-value" id="verdict">—</div><div class="stat-detail" id="gateReason">—</div></article>
+          <article class="stat"><div class="stat-key">Cases</div><div class="stat-value" id="caseCount">—</div><div class="stat-detail">generated test cases</div></article>
+          <article class="stat"><div class="stat-key">Metric checks</div><div class="stat-value" id="metricCount">—</div><div class="stat-detail">evidence points</div></article>
+          <article class="stat"><div class="stat-key">Critical failures</div><div class="stat-value" id="criticalFailures">—</div><div class="stat-detail">hard gate failures</div></article>
         </div>
-      </div>
+        <article class="panel"><div class="panel-head"><div><h3>Metric aggregates</h3><p>Mean score, pass rate, checks, and evaluator errors.</p></div><span class="chip on">Measured</span></div><div class="table-wrap"><table><thead><tr><th>Metric</th><th>Mean</th><th>Pass rate</th><th>Checks</th><th>Errors</th></tr></thead><tbody id="metricTable"></tbody></table></div></article>
+        <div class="cols-2" id="evidence"><article class="panel"><div class="panel-head"><div><h3>Regression</h3><p>Change detection against the selected baseline.</p></div></div><div id="regressionBox" class="detail-box"></div></article><article class="panel"><div class="panel-head"><div><h3>Judge calibration</h3><p>Agreement between semantic scores and available human ratings.</p></div></div><div id="calibrationBox" class="detail-box"></div></article></div>
+        <article class="panel"><div class="panel-head"><div><h3>OWASP GenAI / LLM Top 10 evidence</h3><p>Evidence mapping from this evaluation; not a certification.</p></div><span class="chip">Crosswalk</span></div><div class="owasp-grid" id="owaspGrid"></div></article>
+        <article class="panel"><div class="panel-head"><div><h3>Failed checks</h3><p>Debugging evidence for checks that did not meet the configured gate.</p></div><span class="chip" id="failureCountLabel">0 failures</span></div><div class="table-wrap"><table><thead><tr><th>Case</th><th>Metric</th><th>Evaluator</th><th>Reason</th></tr></thead><tbody id="failureTable"></tbody></table></div></article>
+      </section>
 
-      <div class="summary-grid">
-        <article class="summary-card verdict-card">
-          <span class="summary-kicker">Gate verdict</span>
-          <strong id="verdict">—</strong>
-          <small id="gateReason">—</small>
-        </article>
-        <article class="summary-card">
-          <span class="summary-kicker">Cases</span>
-          <strong id="caseCount">—</strong>
-          <small>Generated from dataset rows</small>
-        </article>
-        <article class="summary-card">
-          <span class="summary-kicker">Metric checks</span>
-          <strong id="metricCount">—</strong>
-          <small>Individual evidence points</small>
-        </article>
-        <article class="summary-card">
-          <span class="summary-kicker">Critical failures</span>
-          <strong id="criticalFailures">—</strong>
-          <small>Cannot be hidden by averages</small>
-        </article>
-      </div>
+      <section class="section" id="runs">
+        <div class="section-head"><div><p class="crumb">Operate / <b>Run History</b></p><h2>Evaluation runs</h2><p>Open prior evidence or mark a known-good run as the regression baseline.</p></div><button class="btn ghost small" id="refreshRuns" type="button">Refresh runs</button></div>
+        <div class="baseline-banner hidden" id="baselineBanner"><span class="status-dot"></span><span>Current baseline</span><strong id="baselineRunId">—</strong></div>
+        <article class="panel"><div class="table-wrap"><table><thead><tr><th>Run</th><th>Created</th><th>Target</th><th>Cases</th><th>Verdict</th><th>Actions</th></tr></thead><tbody id="runsTable"></tbody></table></div></article>
+      </section>
 
-      <article class="data-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="mono-label">Measured results</p>
-            <h3>Metric aggregates</h3>
-          </div>
-          <a id="htmlReportLink" class="text-link" target="_blank" rel="noopener">Open full report ↗</a>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Metric</th><th>Mean</th><th>Pass rate</th><th>Checks</th><th>Errors</th></tr>
-            </thead>
-            <tbody id="metricTable"></tbody>
-          </table>
-        </div>
-      </article>
-
-      <article class="data-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="mono-label">Security evidence</p>
-            <h3>OWASP GenAI / LLM Top 10</h3>
-          </div>
-          <span class="panel-note">Evidence status, not certification</span>
-        </div>
-        <div class="owasp-grid" id="owaspGrid"></div>
-      </article>
-
-      <div class="two-column">
-        <article class="data-panel compact-panel">
-          <p class="mono-label">Change detection</p>
-          <h3>Regression</h3>
-          <div id="regressionBox" class="detail-box"></div>
-        </article>
-        <article class="data-panel compact-panel">
-          <p class="mono-label">Evaluator validation</p>
-          <h3>Judge calibration</h3>
-          <div id="calibrationBox" class="detail-box"></div>
-        </article>
-      </div>
-
-      <article class="data-panel">
-        <div class="panel-heading">
-          <div>
-            <p class="mono-label">Debugging evidence</p>
-            <h3>Failed checks</h3>
-          </div>
-          <span class="panel-note" id="failureCountLabel">0 failures</span>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Case</th><th>Metric</th><th>Evaluator</th><th>Reason</th></tr>
-            </thead>
-            <tbody id="failureTable"></tbody>
-          </table>
-        </div>
-      </article>
-    </section>
-
-    <section class="section" id="runs">
-      <div class="section-intro runs-intro">
-        <p class="section-number">03 — Run history</p>
-        <div>
-          <h2>Compare what changed.</h2>
-          <p>Open prior evidence or mark a known-good run as the regression baseline.</p>
-        </div>
-        <button class="button button-ghost refresh-button" id="refreshRuns" type="button">Refresh runs</button>
-      </div>
-
-      <article class="data-panel runs-panel">
-        <div class="baseline-banner hidden" id="baselineBanner">
-          <span class="status-dot"></span>
-          <span>Current baseline:</span>
-          <strong id="baselineRunId">—</strong>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>Run</th><th>Created</th><th>Target</th><th>Cases</th><th>Verdict</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="runsTable"></tbody>
-          </table>
-        </div>
-      </article>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div>
-      <strong>XSignOn Layer 4</strong>
-      <span>Evaluation · evidence · release gating</span>
-    </div>
-    <p>Local dashboard · Data stays on your machine unless you configure an external provider.</p>
-  </footer>
-
+      <footer class="footer"><strong>XSignOn Layer 4</strong><span>Evaluation · evidence · release gating · local-first execution</span></footer>
+    </main>
+  </div>
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
-
   <script src="/static/app.js"></script>
 </body>
 </html>
