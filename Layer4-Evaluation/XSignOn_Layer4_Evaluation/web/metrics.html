@@ -3,102 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Choose which XSignOn Layer 4 metrics are tested and included in the evaluation gate.">
-  <meta name="theme-color" content="#f5f2eb">
-  <title>XSignOn · Metric Selection</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/style.css">
+  <meta name="description" content="Choose which XSignOn Layer 4 evaluation metrics run and affect the gate.">
+  <meta name="theme-color" content="#0a0e14">
+  <title>XSignOn — Layer 4 Metric Selection</title>
+  <link rel="stylesheet" href="/static/metrics-console.css">
 </head>
-<body data-page="metrics">
-  <nav class="site-nav" aria-label="Metric page navigation">
-    <a class="nav-logo" href="/" aria-label="Back to XSignOn Layer 4">
-      <span class="nav-mark">X4</span>
-      <span>XSignOn</span>
-    </a>
-
-    <div class="nav-links">
-      <a href="/">← Back to evaluation</a>
-    </div>
-
-    <div class="environment-chip" id="metricSaveStatus" role="status" aria-live="polite">
-      <span class="status-dot"></span>
-      <span>Loading metrics</span>
-    </div>
-  </nav>
-
-  <main class="metric-page-main">
-    <header class="metric-page-header">
-      <p class="hero-eyebrow">// Evaluation configuration · Metrics</p>
-      <h1>Choose what is <em>tested.</em></h1>
-      <p>
-        Drag a metric between the two boxes. Metrics under <strong>Tested</strong> run and can affect
-        the final gate. Metrics under <strong>Not tested</strong> are skipped and do not appear in aggregates,
-        failures, regression comparison, or OWASP evidence.
-      </p>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="XSignOn Layer 4 home">
+        <span class="brand-mark">X4</span>
+        <span class="brand-name">XSignOn<small>AI SECURITY · LAYER 4</small></span>
+      </a>
+      <div class="top-search metric-search-label"><span>⌕</span><span>Metric selection</span><kbd>Configure</kbd></div>
+      <div class="top-utils">
+        <div class="environment-chip" id="metricSaveStatus" role="status" aria-live="polite"><span class="status-dot"></span><span>Loading metrics</span></div>
+        <a class="icon-button" href="/" title="Back to evaluation" aria-label="Back to evaluation">↩</a>
+        <span class="avatar" title="Layer 4">L4</span>
+      </div>
     </header>
 
-    <section class="mandatory-checks" aria-labelledby="mandatoryTitle">
-      <div>
-        <p class="mono-label">Always active</p>
-        <h2 id="mandatoryTitle">Technical integrity checks</h2>
-      </div>
-      <p>
-        Target execution and required judge/library availability cannot be disabled. Otherwise a broken
-        model connection could incorrectly appear as a passing evaluation.
-      </p>
-    </section>
+    <aside class="sidebar" aria-label="Layer 4 navigation">
+      <div class="nav-section">Operate</div>
+      <a class="nav-item" href="/"><span class="nav-ico">▚</span> Overview</a>
+      <a class="nav-item" href="/#configure"><span class="nav-ico">＋</span> New Evaluation</a>
+      <a class="nav-item" href="/#runs"><span class="nav-ico">≣</span> Runs</a>
+      <div class="nav-section">Analyze</div>
+      <a class="nav-item" href="/#results"><span class="nav-ico">◎</span> Results</a>
+      <a class="nav-item active" href="/metrics"><span class="nav-ico">◫</span> Metrics</a>
+      <a class="nav-item" href="/#evidence"><span class="nav-ico">⚑</span> Evidence</a>
+      <div class="nav-section">Layer stack</div>
+      <div class="layer-stack"><span class="layer-chip upstream">L2</span><span class="layer-chip upstream">L3</span><span class="layer-chip active">L4</span><span class="layer-chip downstream">L5</span><span class="layer-chip downstream">L6</span></div>
+      <p class="sidebar-note">Metrics placed under Tested run during the evaluation and can affect the final gate.</p>
+    </aside>
 
-    <section class="metric-toolbar" aria-label="Metric selection controls">
-      <div>
-        <strong id="metricSelectionCount">—</strong>
-        <small id="metricSelectionHelp">Changes are saved in this browser.</small>
-      </div>
-      <div class="metric-toolbar-actions">
-        <button class="button button-ghost" id="testAllMetrics" type="button">Test all</button>
-        <button class="button button-ghost" id="resetMetrics" type="button">Reset defaults</button>
-        <a class="button button-dark" href="/">Save &amp; go back <span aria-hidden="true">→</span></a>
-      </div>
-    </section>
-
-    <section class="metric-board" aria-label="Drag and drop metric selection">
-      <article class="metric-zone tested-zone" data-zone="tested">
-        <div class="metric-zone-heading">
+    <main class="main">
+      <section class="overview metric-overview">
+        <div class="page-head">
           <div>
-            <p class="mono-label">Included in run</p>
-            <h2>Tested</h2>
+            <p class="crumb">XSignOn / Layer 4 / <b>Metrics</b></p>
+            <h1>Choose evaluation metrics</h1>
+            <p class="page-sub">Move metrics between Tested and Not tested. Your selection is saved in this browser and used by the next run.</p>
           </div>
-          <span class="metric-zone-count" id="testedCount">0</span>
+          <div class="page-actions"><a class="btn ghost" href="/">← Back to evaluation</a></div>
         </div>
-        <p class="metric-zone-copy">These metrics execute, appear in reports, and can fail the gate.</p>
-        <div class="metric-drop-list" id="testedMetrics" data-zone="tested" tabindex="0" aria-label="Tested metrics drop zone"></div>
-      </article>
 
-      <article class="metric-zone not-tested-zone" data-zone="not-tested">
-        <div class="metric-zone-heading">
-          <div>
-            <p class="mono-label">Excluded from run</p>
-            <h2>Not tested</h2>
-          </div>
-          <span class="metric-zone-count" id="notTestedCount">0</span>
+        <div class="stat-row metric-stats">
+          <article class="stat accent"><div class="stat-key">Selected</div><div class="stat-value compact" id="metricSelectionCount">Loading…</div><div class="stat-detail">metrics included in the next run</div></article>
+          <article class="stat"><div class="stat-key">Always active</div><div class="stat-value compact">Integrity checks</div><div class="stat-detail">target and evaluator availability cannot be disabled</div></article>
+          <article class="stat"><div class="stat-key">Selection storage</div><div class="stat-value compact">Browser local</div><div class="stat-detail">no server-side profile required</div></article>
+          <article class="stat"><div class="stat-key">Gate behavior</div><div class="stat-value compact">Selected metrics only</div><div class="stat-detail">excluded metrics do not affect pass/fail</div></article>
         </div>
-        <p class="metric-zone-copy">These metrics are skipped and cannot affect pass/fail or OWASP status.</p>
-        <div class="metric-drop-list" id="notTestedMetrics" data-zone="not-tested" tabindex="0" aria-label="Not tested metrics drop zone"></div>
-      </article>
-    </section>
+      </section>
 
-    <section class="metric-note">
-      <p class="mono-label">Important</p>
-      <p>
-        Turning off a metric reduces the scope of the evaluation. For example, moving
-        <code>latency_within_limit</code> to Not tested prevents latency from failing the run, but it also means
-        the OWASP unbounded-consumption section has less automated evidence.
-      </p>
-    </section>
-  </main>
+      <section class="section">
+        <div class="section-head">
+          <div><p class="crumb">Configure / <b>Metric Selection</b></p><h2>Test scope</h2><p id="metricSelectionHelp">Drag a card or use its move button. Changes save automatically.</p></div>
+          <div class="metric-toolbar-actions"><button class="btn ghost small" id="testAllMetrics" type="button">Test all</button><button class="btn ghost small" id="resetMetrics" type="button">Reset defaults</button><a class="btn small" href="/">Done →</a></div>
+        </div>
 
+        <article class="panel integrity-panel">
+          <div class="panel-head inline-head"><div><h3>Technical integrity checks stay on</h3><p>A broken target connection or missing enabled evaluator cannot be hidden by turning off a metric.</p></div><span class="chip on">Always active</span></div>
+        </article>
+
+        <div class="metric-board" aria-label="Drag and drop metric selection">
+          <article class="panel metric-zone tested-zone" data-zone="tested">
+            <div class="panel-head"><div><h3>Tested</h3><p>Runs, appears in reports, and can fail the gate.</p></div><span class="metric-zone-count" id="testedCount">0</span></div>
+            <div class="metric-drop-list" id="testedMetrics" data-zone="tested" tabindex="0" aria-label="Tested metrics drop zone"></div>
+          </article>
+          <article class="panel metric-zone not-tested-zone" data-zone="not-tested">
+            <div class="panel-head"><div><h3>Not tested</h3><p>Skipped and does not affect pass/fail or OWASP evidence.</p></div><span class="metric-zone-count muted" id="notTestedCount">0</span></div>
+            <div class="metric-drop-list" id="notTestedMetrics" data-zone="not-tested" tabindex="0" aria-label="Not tested metrics drop zone"></div>
+          </article>
+        </div>
+
+        <article class="panel metric-note-console">
+          <div class="panel-head inline-head"><div><h3>Scope reminder</h3><p>Turning off a metric reduces evaluation coverage. For example, disabling <code>latency_within_limit</code> means latency cannot fail the run and reduces automated evidence for unbounded consumption.</p></div></div>
+        </article>
+      </section>
+
+      <footer class="footer"><strong>XSignOn Layer 4</strong><span>Evaluation · evidence · release gating · local-first execution</span></footer>
+    </main>
+  </div>
   <div class="toast-region" id="toastRegion" aria-live="polite" aria-atomic="true"></div>
   <script src="/static/metrics.js" defer></script>
 </body>
