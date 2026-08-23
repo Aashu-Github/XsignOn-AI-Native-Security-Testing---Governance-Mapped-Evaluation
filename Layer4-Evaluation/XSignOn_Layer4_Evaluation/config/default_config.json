@@ -33,7 +33,7 @@
   },
   "judge": {
     "provider": "ollama",
-    "model": "llama3.2:latest",
+    "model": "qwen3:14b",
     "api_key_env": "GEMINI_API_KEY",
     "enable_deepeval": false,
     "enable_ragas": false,
