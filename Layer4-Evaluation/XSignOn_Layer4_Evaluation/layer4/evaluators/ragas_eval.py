@@ -1,10 +1,37 @@
 from __future__ import annotations
 
 import os
+import sys
+import types
 from typing import Any
 
 from layer4.evaluators.base import Evaluator
 from layer4.models import ExecutionTrace, MetricResult, TestCase
+
+
+def _install_ragas_vertexai_compat() -> None:
+    """Bridge RAGAS 0.4.3's legacy LangChain VertexAI import on modern installs.
+
+    RAGAS 0.4.3 imports ``langchain_community.chat_models.vertexai.ChatVertexAI``.
+    Recent LangChain releases moved that class to ``langchain_google_vertexai``.
+    This alias is installed only when the legacy module is absent, so it does
+    not override a real compatibility module if one is already available.
+    """
+    legacy_module = "langchain_community.chat_models.vertexai"
+    try:
+        __import__(legacy_module)
+        return
+    except ImportError:
+        pass
+
+    try:
+        from langchain_google_vertexai import ChatVertexAI
+    except ImportError:
+        return
+
+    shim = types.ModuleType(legacy_module)
+    shim.ChatVertexAI = ChatVertexAI
+    sys.modules[legacy_module] = shim
 
 
 class RagasEvaluator(Evaluator):
@@ -54,6 +81,8 @@ class RagasEvaluator(Evaluator):
     def evaluate(self, cases: list[TestCase], traces: list[ExecutionTrace]) -> list[MetricResult]:
         if not self.config.get("judge", {}).get("enable_ragas", False):
             return []
+
+        _install_ragas_vertexai_compat()
         try:
             from ragas.metrics.collections import ContextPrecision, ContextRecall, Faithfulness
         except ImportError as exc:
@@ -64,7 +93,7 @@ class RagasEvaluator(Evaluator):
                 threshold=1.0,
                 passed=False,
                 evaluator=self.name,
-                reason="RAGAS was enabled but is not installed.",
+                reason="RAGAS could not be imported. Install requirements-full.txt and verify the LangChain compatibility dependency.",
                 severity="critical",
                 error=str(exc),
             )]
